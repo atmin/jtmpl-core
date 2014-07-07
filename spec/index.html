@@ -1,0 +1,30 @@
+<div style="margin:1em; padding:1em; background:#fff">
+
+  <div data-jtmpl="#app"></div>
+
+</div>
+
+
+<script id="app" data-model="#model" type="text/jtmpl">
+  {{a}}
+</script>
+
+
+<script id="model">
+  {
+    a: 1
+  }
+</script>
+
+
+<script src="../build/jtmpl.js"></script>
+<script src="tinytest.js"></script>
+<script>
+  tests({
+
+    'jtmpl is a function': function() {
+      assert(typeof jtmpl === 'function');
+    }
+
+  });
+</script>

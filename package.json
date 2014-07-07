@@ -1,0 +1,34 @@
+{
+  "name": "jtmpl-core",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atmin/jtmpl-core.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "element-class": "^0.1.1",
+    "freak": "0.0.3",
+    "jshint": "^2.5.1",
+    "phantom": "^0.6.4",
+    "simple-server": "^1.0.1",
+    "uglify-js": "^2.4.14",
+    "watchify": "^0.10.2"
+  },
+  "scripts": {
+    "jshint": "jshint jtmpl/*.js",
+    "browserify": "browserify --standalone jtmpl jtmpl/main.js > build/jtmpl.js",
+    "watch": "watchify --standalone jtmpl jtmpl/main.js -o build/jtmpl.js -dv",
+    "uglify": "uglifyjs build/jtmpl.js -c -m --screw-ie8 -o build/jtmpl.min.js",
+    "start": "simple-server",
+    "dev": "npm run start & npm run watch",
+    "build": "npm run jshint && npm run browserify && npm run uglify",
+    "test": "npm run build && node spec/spec.js"
+  }
+}
