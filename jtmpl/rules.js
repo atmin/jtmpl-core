@@ -29,7 +29,6 @@ It must return either:
 */
 
     module.exports = [
-      require('./rules/onevent'),
       require('./rules/class-block'),
       require('./rules/class-var'),
       require('./rules/block'),
