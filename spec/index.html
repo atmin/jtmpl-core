@@ -1,6 +1,6 @@
 <div style="margin:1em; padding:1em; background:#fff">
 
-  <div data-jtmpl="#app"></div>
+  <div id="target" data-jtmpl="#app"></div>
 
 </div>
 
@@ -20,11 +20,21 @@
 <script src="../build/jtmpl.js"></script>
 <script src="tinytest.js"></script>
 <script>
-  tests({
+  document.addEventListener('DOMContentLoaded', function go() {
 
-    'jtmpl is a function': function() {
-      assert(typeof jtmpl === 'function');
-    }
+    tests({
+
+      'jtmpl is a function': function() {
+        assert(typeof jtmpl === 'function');
+      },
+
+      'it processes #target[data-jtmpl]': function() {
+        assert(document.getElementById('target').childNodes.length > 0);
+      }
+
+    });
+
+    document.removeEventListener('DOMContentLoaded', go)
 
   });
 </script>

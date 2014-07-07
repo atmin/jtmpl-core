@@ -89,20 +89,24 @@ On page ready, process jtmpl targets
 */
 
     document.addEventListener('DOMContentLoaded', function() {
-      var targets = document.querySelectorAll('[data-template]');
-      var t, m;
+      var targets = document.querySelectorAll('[data-jtmpl]');
+      var target, template;
 
       for (var i = 0, len = targets.length; i < len; i++) {
-        t = targets[i];
-        // if (src.match(consts.RE_NODE_ID)) {
-        //   return loadModel(document.querySelector(src).innerHTML);
-        // }
+        target = targets[i];
+        template = document.querySelector(target.getAttribute('data-jtmpl'));
 
-        jtmpl(t, 
-          document.querySelector(t.getAttribute('data-template')).innerHTML, 
-          require('./eval-object')
-            (document.querySelector(t.getAttribute('data-model')).innerHTML)
+        jtmpl(
+          target, 
+          template.innerHTML, 
+          require('./eval-object')(
+            document.querySelector(
+              template.getAttribute('data-model')
+            ).innerHTML
+          )
         );
+
+        // TODO: handle URL template and model
       }
     });
 
