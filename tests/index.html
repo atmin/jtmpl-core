@@ -63,8 +63,12 @@
           assert(typeof jtmpl === 'function');
         },
 
-        'it processes #target[data-jtmpl]': function() {
+        'it processes #target[data-jtmpl] elements': function() {
           assert(document.getElementById('target').childNodes.length > 0);
+        },
+
+        'jtmpl("#target") returns wrapped model': function() {
+          assert(Array.isArray(jtmpl('#target')('numbers').values));
         },
 
         'it renders <ul> with 3 numbers': function() {

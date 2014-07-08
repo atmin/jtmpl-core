@@ -14,6 +14,12 @@
         return require('./xhr').apply(null, args);
       }
 
+      // jtmpl(target)?
+      else if (args.length === 1 && typeof args[0] === 'string') {
+        // return model
+        return document.querySelector(args[0]).__jtmpl__;
+      }
+
       // jtmpl(template, model[, options])?
       else if (
         typeof args[0] === 'string' && 
@@ -22,14 +28,6 @@
       ) {
         return require('./compiler').apply(null, args);
       }
-
-      // jtmpl(target, model[, options])?
-      // else if (
-      //   args[0] instanceof Node &&
-      //   typeof args[1] === 'object'
-      // ) {
-      //   console.log('jtmpl(target, model[, options])');
-      // }
 
       // jtmpl(target, template, model[, options])?
       else if (
@@ -65,12 +63,25 @@
               require('./eval-object')(document.querySelector(args[2]).innerHTML) :
               undefined;
 
+        model = 
+          typeof model === 'function' ?
+            // Freak instance
+            model :
+            typeof model === 'object' ?
+              // Wrap object
+              jtmpl.freak(model) :
+              // Simple value
+              jtmpl.freak({'.': model});
+
         if (target.nodeName === 'SCRIPT') {
           t = document.createElement('div');
           t.id = target.id;
           target.parentNode.replaceChild(t, target);
           target = t;
         }
+
+        // Associate target and model
+        target.__jtmpl__ = model;
 
         // Empty target
         target.innerHTML = '';
