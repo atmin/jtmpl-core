@@ -1,4 +1,290 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.jtmpl=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+module.exports = function(opts) {
+  return new ElementClass(opts)
+}
+
+function ElementClass(opts) {
+  if (!(this instanceof ElementClass)) return new ElementClass(opts)
+  var self = this
+  if (!opts) opts = {}
+
+  // similar doing instanceof HTMLElement but works in IE8
+  if (opts.nodeType) opts = {el: opts}
+
+  this.opts = opts
+  this.el = opts.el || document.body
+  if (typeof this.el !== 'object') this.el = document.querySelector(this.el)
+}
+
+ElementClass.prototype.add = function(className) {
+  var el = this.el
+  if (!el) return
+  if (el.className === "") return el.className = className
+  var classes = el.className.split(' ')
+  if (classes.indexOf(className) > -1) return classes
+  classes.push(className)
+  el.className = classes.join(' ')
+  return classes
+}
+
+ElementClass.prototype.remove = function(className) {
+  var el = this.el
+  if (!el) return
+  if (el.className === "") return
+  var classes = el.className.split(' ')
+  var idx = classes.indexOf(className)
+  if (idx > -1) classes.splice(idx, 1)
+  el.className = classes.join(' ')
+  return classes
+}
+
+ElementClass.prototype.has = function(className) {
+  var el = this.el
+  if (!el) return
+  var classes = el.className.split(' ')
+  return classes.indexOf(className) > -1
+}
+
+},{}],2:[function(_dereq_,module,exports){
+'use strict';
+
+function freak(obj, root, parent) {
+
+  var listeners = {
+    'change': {},
+    'insert': {},
+    'delete': {}
+  };
+  var dependents = {};
+  var children = {};
+
+  function assert(cond, msg) {
+    if (!cond) {
+      throw msg || 'assertion failed';
+    }
+  }
+
+  // Mix properties into target
+  function mixin(target, properties) {
+    for (var i = 0, props = Object.getOwnPropertyNames(properties), len = props.length;
+        i < len; i++) {
+      target[props[i]] = properties[props[i]];
+    }
+  }
+
+  // Event functions
+  function on() {
+    var event = arguments[0];
+    var prop = ['string', 'number'].indexOf(typeof arguments[1]) > -1 ? 
+      arguments[1] : null;
+    var callback = 
+      typeof arguments[1] === 'function' ?
+        arguments[1] :
+        typeof arguments[2] === 'function' ?
+          arguments[2] : null;
+
+    // Args check
+    assert(['change', 'insert', 'delete'].indexOf(event) > -1);
+    assert(
+      (event === 'change' && prop !== null) ||
+      ((event === 'insert' || event === 'delete') && !prop)
+    );
+
+    // Init listeners for prop
+    if (!listeners[event][prop]) {
+      listeners[event][prop] = [];
+    }
+    // Already registered?
+    if (listeners[event][prop].indexOf(callback) === -1) {
+      listeners[event][prop].push(callback);
+    }
+  }
+
+  function off() {
+    var event = arguments[0];
+    var prop = typeof arguments[1] === 'string' ? arguments[1] : null;
+    var callback = 
+      typeof arguments[1] === 'function' ?
+        arguments[1] :
+        typeof arguments[2] === 'function' ?
+          arguments[2] : null;
+    var i;
+
+    if (!listeners[event][prop]) return;
+
+    // Remove all property watchers?
+    if (!callback) {
+      listeners[event][prop] = [];
+    }
+    else {
+      // Remove specific callback
+      i = listeners[event][prop].indexOf(callback);
+      if (i > -1) {
+        listeners[event][prop].splice(i, 1);
+      }
+    }
+
+  }  
+
+  // trigger('change', prop)
+  // trigger('insert' or 'delete', index, count)
+  function trigger(event, a, b) {
+    (listeners[event][event === 'change' ? a : null] || [])
+      .map(function(listener) {
+        listener.call(instance, a, b);
+      });
+  }
+
+  // Functional accessor
+  function accessor(prop, arg, refresh) {
+
+    var i, len, dep, result, val;
+
+    // Lift accessor, track dependencies
+    function dependencyTracker(_prop, _arg, _refresh) {
+      if (!dependents[_prop]) {
+        dependents[_prop] = [];
+      }
+      if (dependents[_prop].indexOf(prop) === -1) {
+        dependents[_prop].push(prop);
+      }
+      return accessor(_prop, _arg, _refresh);
+    }
+
+    // Getter?
+    if ((arg === undefined || typeof arg === 'function') && !refresh) {
+
+      val = obj[prop];
+
+      result = (typeof val === 'function') ?
+        // Computed property
+        val.call(dependencyTracker, arg) :
+        // Static property (leaf in the dependency tree)
+        val;
+
+      return typeof result === 'object' ? 
+
+        typeof children[prop] === 'function' ?
+          children[prop] :
+          children[prop] = freak(val, root || instance, instance) :
+
+        result;
+    }
+
+    // Setter
+    else {
+
+      if (!refresh) {
+        if (typeof obj[prop] === 'function') {
+          // Computed property setter
+          obj[prop].call(dependencyTracker, arg);
+        }
+        else {
+          // Simple property. `arg` is the new value
+          obj[prop] = arg;
+        }
+      }
+
+      // Notify dependents
+      for (i = 0, dep = dependents[prop] || [], len = dep.length;
+          i < len; i++) {
+        accessor(dep[i], arg, true);
+      }
+
+      // Emit update event
+      trigger('change', prop);
+
+    } // if getter        
+
+  } // end accessor
+
+  var arrayProperties = {
+    // Function prototype already contains length
+    len: obj.length,
+
+    pop: function() {
+      var result = [].pop.apply(obj);
+      this.len = this.values.length;
+      trigger('delete', this.len, 1);
+      return result;
+    },
+
+    push: function() {
+      var result = [].push.apply(obj, arguments);
+      this.len = this.values.length;
+      trigger('insert', this.len - 1, 1);
+      return result;
+    },
+
+    reverse: function() {
+      var result = [].reverse.apply(obj);
+      this.len = obj.length;
+      trigger('delete', 0, this.len);
+      trigger('insert', 0, this.len);
+      return result;
+    },
+
+    shift: function() {
+      var result = [].shift.apply(obj);
+      this.len = obj.length;
+      trigger('delete', 0, 1);
+      return result;
+    },
+
+    unshift: function() {
+      var result = [].unshift.apply(obj, arguments);
+      this.len = obj.length;
+      trigger('insert', 0, 1);
+      return result;
+    },
+
+    sort: function() {
+      var result = [].sort.apply(obj, arguments);
+      trigger('delete', 0, this.len);
+      trigger('insert', 0, this.len);
+      return result;
+    },
+
+    splice: function() {
+      var result = [].splice.apply(obj, arguments);
+      this.len = obj.length;
+      if (arguments[1]) {
+        trigger('delete', arguments[0], arguments[1]);
+      }
+      if (arguments.length > 2) {
+        trigger('insert', arguments[0], arguments.length - 2);
+      }
+      return result;
+    }
+
+  };
+
+  var instance = function() {
+    return accessor.apply(null, arguments);
+  };
+
+  var instanceProperties = {
+    values: obj,
+    parent: parent || null,
+    root: root || instance,
+    // .on(event[, prop], callback)
+    on: on,
+    // .off(event[, prop][, callback])
+    off: off
+  };
+
+  mixin(instance, instanceProperties);
+
+  if (Array.isArray(obj)) {
+    mixin(instance, arrayProperties);
+  }
+
+  return instance;
+}
+
+// CommonJS export
+if (typeof module === 'object') module.exports = freak;
+},{}],3:[function(_dereq_,module,exports){
 /*
 
 ## Compiler
@@ -227,7 +513,7 @@ Return documentFragment
 
       return fragment;
     };
-},{"./consts":2,"./default-options":3,"./rules":6,"freak":13}],2:[function(_dereq_,module,exports){
+},{"./consts":4,"./default-options":5,"./rules":8,"freak":2}],4:[function(_dereq_,module,exports){
 /*
 
 ## Constants
@@ -249,7 +535,7 @@ Return documentFragment
 
   };
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 /*
   
 Default options
@@ -260,7 +546,7 @@ Default options
       delimiters: ['{{', '}}']
     };
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
 /*
 
 Evaluate object from literal or CommonJS module
@@ -277,7 +563,7 @@ Evaluate object from literal or CommonJS module
         new Function('module', 'exports', body + ';return module.exports;')(module, module.exports);
     };
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 /*
  
 ## Main function
@@ -408,7 +694,7 @@ Export
 
 */
     module.exports = jtmpl;
-},{"./compiler":1,"./consts":2,"./eval-object":4,"./xhr":11,"freak":13}],6:[function(_dereq_,module,exports){
+},{"./compiler":3,"./consts":4,"./eval-object":6,"./xhr":13,"freak":2}],8:[function(_dereq_,module,exports){
 /*
 
 ## Rules
@@ -458,7 +744,7 @@ It must return either:
 
 
 
-},{"./rules/block":7,"./rules/class-block":8,"./rules/class-var":9,"./rules/var":10}],7:[function(_dereq_,module,exports){
+},{"./rules/block":9,"./rules/class-block":10,"./rules/class-var":11,"./rules/var":12}],9:[function(_dereq_,module,exports){
 /*
 
 ### {{#block}}
@@ -563,22 +849,23 @@ Can be bound to text node
 
       if (match) {
 
-        model.on('change', prop, change);
-        change();
-
         return {
           block: prop,
 
           replace: function(tmpl, parent) {
             fragment.appendChild(anchor);
             template = tmpl;
+            
+            model.on('change', prop, change);
+            change();
+
             return anchor;
           }
         };
 
       }
     }
-},{"../compiler":1,"../consts":2}],8:[function(_dereq_,module,exports){
+},{"../compiler":3,"../consts":4}],10:[function(_dereq_,module,exports){
 /*
 
 ### class="{{#ifCondition}}some-class{{/}}"
@@ -613,7 +900,7 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
       }
     }
 
-},{"../consts":2,"element-class":12}],9:[function(_dereq_,module,exports){
+},{"../consts":4,"element-class":1}],11:[function(_dereq_,module,exports){
 /*
 
 ### class="{{some-class}}"
@@ -641,7 +928,7 @@ Toggles class `some-class` in sync with boolean `model['some-class']`
       }
     }
 
-},{"../consts":2,"element-class":12}],10:[function(_dereq_,module,exports){
+},{"../consts":4,"element-class":1}],12:[function(_dereq_,module,exports){
 /*
 
 ### {{var}}
@@ -687,7 +974,7 @@ Can be bound to text node data or attribute
       }
     }
 
-},{"../consts":2}],11:[function(_dereq_,module,exports){
+},{"../consts":4}],13:[function(_dereq_,module,exports){
 /*
 
 Requests API
@@ -760,291 +1047,6 @@ Requests API
 
     };
 
-},{}],12:[function(_dereq_,module,exports){
-module.exports = function(opts) {
-  return new ElementClass(opts)
-}
-
-function ElementClass(opts) {
-  if (!(this instanceof ElementClass)) return new ElementClass(opts)
-  var self = this
-  if (!opts) opts = {}
-
-  // similar doing instanceof HTMLElement but works in IE8
-  if (opts.nodeType) opts = {el: opts}
-
-  this.opts = opts
-  this.el = opts.el || document.body
-  if (typeof this.el !== 'object') this.el = document.querySelector(this.el)
-}
-
-ElementClass.prototype.add = function(className) {
-  var el = this.el
-  if (!el) return
-  if (el.className === "") return el.className = className
-  var classes = el.className.split(' ')
-  if (classes.indexOf(className) > -1) return classes
-  classes.push(className)
-  el.className = classes.join(' ')
-  return classes
-}
-
-ElementClass.prototype.remove = function(className) {
-  var el = this.el
-  if (!el) return
-  if (el.className === "") return
-  var classes = el.className.split(' ')
-  var idx = classes.indexOf(className)
-  if (idx > -1) classes.splice(idx, 1)
-  el.className = classes.join(' ')
-  return classes
-}
-
-ElementClass.prototype.has = function(className) {
-  var el = this.el
-  if (!el) return
-  var classes = el.className.split(' ')
-  return classes.indexOf(className) > -1
-}
-
-},{}],13:[function(_dereq_,module,exports){
-'use strict';
-
-function freak(obj, root, parent) {
-
-  var listeners = {
-    'change': {},
-    'insert': {},
-    'delete': {}
-  };
-  var dependents = {};
-  var children = {};
-
-  function assert(cond, msg) {
-    if (!cond) {
-      throw msg || 'assertion failed';
-    }
-  }
-
-  // Mix properties into target
-  function mixin(target, properties) {
-    for (var i = 0, props = Object.getOwnPropertyNames(properties), len = props.length;
-        i < len; i++) {
-      target[props[i]] = properties[props[i]];
-    }
-  }
-
-  // Event functions
-  function on() {
-    var event = arguments[0];
-    var prop = typeof arguments[1] === 'string' ? arguments[1] : null;
-    var callback = 
-      typeof arguments[1] === 'function' ?
-        arguments[1] :
-        typeof arguments[2] === 'function' ?
-          arguments[2] : null;
-
-    // Args check
-    assert(['change', 'insert', 'delete'].indexOf(event) > -1);
-    assert(
-      (event === 'change' && prop) ||
-      ((event === 'insert' || event === 'delete') && !prop)
-    );
-
-    // Init listeners for prop
-    if (!listeners[event][prop]) {
-      listeners[event][prop] = [];
-    }
-    // Already registered?
-    if (listeners[event][prop].indexOf(callback) === -1) {
-      listeners[event][prop].push(callback);
-    }
-  }
-
-  function off() {
-    var event = arguments[0];
-    var prop = typeof arguments[1] === 'string' ? arguments[1] : null;
-    var callback = 
-      typeof arguments[1] === 'function' ?
-        arguments[1] :
-        typeof arguments[2] === 'function' ?
-          arguments[2] : null;
-    var i;
-
-    if (!listeners[event][prop]) return;
-
-    // Remove all property watchers?
-    if (!callback) {
-      listeners[event][prop] = [];
-    }
-    else {
-      // Remove specific callback
-      i = listeners[event][prop].indexOf(callback);
-      if (i > -1) {
-        listeners[event][prop].splice(i, 1);
-      }
-    }
-
-  }  
-
-  // trigger('change', prop)
-  // trigger('insert' or 'delete', index, count)
-  function trigger(event, a, b) {
-    (listeners[event][event === 'change' ? a : null] || [])
-      .map(function(listener) {
-        listener.call(instance, a, b);
-      });
-  }
-
-  // Functional accessor
-  function accessor(prop, arg, refresh) {
-
-    var i, len, dep, result, val;
-
-    // Lift accessor, track dependencies
-    function dependencyTracker(_prop, _arg, _refresh) {
-      if (!dependents[_prop]) {
-        dependents[_prop] = [];
-      }
-      if (dependents[_prop].indexOf(prop) === -1) {
-        dependents[_prop].push(prop);
-      }
-      return accessor(_prop, _arg, _refresh);
-    }
-
-    // Getter?
-    if ((arg === undefined || typeof arg === 'function') && !refresh) {
-
-      val = obj[prop];
-
-      result = (typeof val === 'function') ?
-        // Computed property
-        val.call(dependencyTracker, arg) :
-        // Static property (leaf in the dependency tree)
-        val;
-
-      return typeof result === 'object' ? 
-
-        typeof children[prop] === 'function' ?
-          children[prop] :
-          children[prop] = freak(val, root || instance, instance) :
-
-        result;
-    }
-
-    // Setter
-    else {
-
-      if (!refresh) {
-        if (typeof obj[prop] === 'function') {
-          // Computed property setter
-          obj[prop].call(dependencyTracker, arg);
-        }
-        else {
-          // Simple property. `arg` is the new value
-          obj[prop] = arg;
-        }
-      }
-
-      // Notify dependents
-      for (i = 0, dep = dependents[prop] || [], len = dep.length;
-          i < len; i++) {
-        accessor(dep[i], arg, true);
-      }
-
-      // Emit update event
-      trigger('change', prop);
-
-    } // if getter        
-
-  } // end accessor
-
-  var arrayProperties = {
-    // Function prototype already contains length
-    len: obj.length,
-
-    pop: function() {
-      var result = [].pop.apply(obj);
-      this.len = this.values.length;
-      trigger('delete', this.len, 1);
-      return result;
-    },
-
-    push: function() {
-      var result = [].push.apply(obj, arguments);
-      this.len = this.values.length;
-      trigger('insert', this.len - 1, 1);
-      return result;
-    },
-
-    reverse: function() {
-      var result = [].reverse.apply(obj);
-      this.len = obj.length;
-      trigger('delete', 0, this.len);
-      trigger('insert', 0, this.len);
-      return result;
-    },
-
-    shift: function() {
-      var result = [].shift.apply(obj);
-      this.len = obj.length;
-      trigger('delete', 0, 1);
-      return result;
-    },
-
-    unshift: function() {
-      var result = [].unshift.apply(obj, arguments);
-      this.len = obj.length;
-      trigger('insert', 0, 1);
-      return result;
-    },
-
-    sort: function() {
-      var result = [].sort.apply(obj, arguments);
-      trigger('delete', 0, this.len);
-      trigger('insert', 0, this.len);
-      return result;
-    },
-
-    splice: function() {
-      var result = [].splice.apply(obj, arguments);
-      this.len = obj.length;
-      if (arguments[1]) {
-        trigger('delete', arguments[0], arguments[1]);
-      }
-      if (arguments.length > 2) {
-        trigger('insert', arguments[0], arguments.length - 2);
-      }
-      return result;
-    }
-
-  };
-
-  var instance = function() {
-    return accessor.apply(null, arguments);
-  };
-
-  var instanceProperties = {
-    values: obj,
-    parent: parent || null,
-    root: root || instance,
-    // .on(event[, prop], callback)
-    on: on,
-    // .off(event[, prop][, callback])
-    off: off
-  };
-
-  mixin(instance, instanceProperties);
-
-  if (Array.isArray(obj)) {
-    mixin(instance, arrayProperties);
-  }
-
-  return instance;
-}
-
-// CommonJS export
-if (typeof module === 'object') module.exports = freak;
-},{}]},{},[5])
-(5)
+},{}]},{},[7])
+(7)
 });

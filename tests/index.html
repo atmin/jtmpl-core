@@ -1,4 +1,4 @@
-<div style="margin:1em; padding:1em; background:#fff">
+<div style="margin:4px; padding:1em; background:#fff; min-height:100%; box-sizing: border-box">
 
   <div id="target" data-jtmpl="#app"></div>
 
@@ -6,13 +6,19 @@
 
 
 <script id="app" data-model="#model" type="text/jtmpl">
-  {{a}}
+  <input value="{{variable}}"/> = {{variable}}
+  <ul>
+  {{#numbers}}
+    <li>{{.}}</li>
+  {{/numbers}}
+  </ul>
 </script>
 
 
-<script id="model">
+<script id="model" type="ttt">
   {
-    a: 1
+    variable: 42,
+    numbers: [1, 2, 3]
   }
 </script>
 
@@ -34,7 +40,7 @@
 
     });
 
-    document.removeEventListener('DOMContentLoaded', go)
+    document.removeEventListener('DOMContentLoaded', go);
 
   });
 </script>

@@ -102,15 +102,16 @@ Can be bound to text node
 
       if (match) {
 
-        model.on('change', prop, change);
-        change();
-
         return {
           block: prop,
 
           replace: function(tmpl, parent) {
             fragment.appendChild(anchor);
             template = tmpl;
+            
+            model.on('change', prop, change);
+            change();
+
             return anchor;
           }
         };
