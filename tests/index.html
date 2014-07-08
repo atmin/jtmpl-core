@@ -1,4 +1,6 @@
-<div style="margin:4px; padding:1em; background:#fff; min-height:100%; box-sizing: border-box">
+<!doctype html>
+
+<div style="margin:4px; padding:1em; background:#fff; min-height:100%; box-sizing:border-box">
 
   <div id="target" data-jtmpl="#app"></div>
 
@@ -6,25 +8,50 @@
 
 
 <script id="app" data-model="#model" type="text/jtmpl">
+  <h3><code>model('variable')</code></h3>
   <input value="{{variable}}"/> = {{variable}}
+
+  <h3><code>model('options')</code></h3>
   <ul>
   {{#numbers}}
     <li>{{.}}</li>
   {{/numbers}}
   </ul>
+
+  <h3>Select and radiogroup</h3>
+  <h5><code>model.options</code></h5>
+  <p>
+    <select>
+      {{#options}}
+      <option selected={{checked}}>{{text}}</option>
+      {{/options}}
+    </select>
+  </p>
+  <h5><code>model('options')</code> again</h5>
+  <p>
+    {{#options}}
+    <label><input type="radio" name="radio-group" checked={{checked}}>{{text}}</label>
+    {{/options}}
+  </p>
+
 </script>
 
 
 <script id="model" type="ttt">
   {
     variable: 42,
-    numbers: [1, 2, 3]
+    numbers: [1, 2, 3],
+    options: [
+      { checked: true, text: 'one' },
+      { checked: false, text: 'two' },
+      { checked: false, text: 'three' }
+    ]
   }
 </script>
 
-
 <script src="../build/jtmpl.js"></script>
 <script src="tinytest.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function go() {
 
@@ -38,12 +65,25 @@
 
         'it processes #target[data-jtmpl]': function() {
           assert(document.getElementById('target').childNodes.length > 0);
+        },
+
+        'it renders <ul> with 3 numbers': function() {
+          assert(
+            [].map.call(
+              document.querySelectorAll('li'),
+              function(el) {
+                return el.innerHTML;
+              }
+            ).reduce(function(a,b) {
+              return a + ', ' + b;
+            }) === '1, 2, 3'
+          );
         }
 
       });
 
-    }, 500);
-    
+    }, 0);
+
     document.removeEventListener('DOMContentLoaded', go);
 
   });

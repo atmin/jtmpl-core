@@ -855,9 +855,10 @@ Can be bound to text node
           replace: function(tmpl, parent) {
             fragment.appendChild(anchor);
             template = tmpl;
-            
+
             model.on('change', prop, change);
-            change();
+            // Exec async, change uses anchor.parentNode
+            setTimeout(change, 0);
 
             return anchor;
           }
@@ -925,12 +926,15 @@ Handle "value", "checked" and "selected" attributes
         change();
 
         // <select> option?
-        if (node.nodeName === 'option') {
-          node.parentNode.addEventListener('change', function() {
-            if (model(prop) !== node.selected) {
-              model(prop, node.selected);
-            }
-          });
+        if (node.nodeName === 'OPTION') {
+          // Attach async, as parentNode is still documentFragment
+          setTimeout(function() {
+            node.parentNode.addEventListener('change', function() {
+              if (model(prop) !== node.selected) {
+                model(prop, node.selected);
+              }
+            });
+          }, 0);
         }
 
         // radio group?

@@ -108,9 +108,10 @@ Can be bound to text node
           replace: function(tmpl, parent) {
             fragment.appendChild(anchor);
             template = tmpl;
-            
+
             model.on('change', prop, change);
-            change();
+            // Exec async, change uses anchor.parentNode
+            setTimeout(change, 0);
 
             return anchor;
           }

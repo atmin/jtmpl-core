@@ -1,52 +1,22 @@
-// require('simple-server');
+var fs = require('fs');
+var server = require('webserver').create();
+var page = new WebPage();
 
-// var page = require('webpage').create();
+page.onConsoleMessage = function(msg) {
+  // Redirect page console to console
+  console.log(msg);
+};
 
-// page.onConsoleMessage = function(msg) {
-//   console.log(msg);
-// };
+page.open('http://localhost:3000/tests/index.html', function() {
+  // Give time to tests to evaluate
+  setTimeout(function() {
+    phantom.exit();
+  }, 0);
+});
 
-// page.onResourceRequested = function(request) {
-//   console.log('Request ' + JSON.stringify(request, undefined, 4));
-// };
-
-// page.onResourceReceived = function(response) {
-//   console.log('Receive ' + JSON.stringify(response, undefined, 4));
-// };    
-
-// var fs = require('fs');
-// page.open('file://' + fs.workingDirectory + '/index.html', function(status) {
-//   page.evaluate(function() {
-//     // Tests are in the page, just eval it and capture console messages
-//   });
-//   phantom.exit();
-// });
-
-
-var app = require('connect')().use(require('serve-static')(__dirname));
-var srv = require('http').createServer(app);
-var phantom = require('phantom');
-
-setTimeout(function() {
-
-  phantom.create(function (ph) {
-    ph.createPage(function (page) {
-
-      page.set('onConsoleMessage', function(msg) {
-        console.log(msg);
-      });
-
-      page.open('http://localhost:3000', function (status) {
-        page.evaluate(function () {}, function (result) {
-          ph.exit();
-          console.log('Closing server')
-          srv.close();
-        });
-      });
-    });
-  });
-
-}, 0);
-
-console.log('Listening on 3000...')
-srv.listen(3000);
+server.listen(3000, function(request, response) {
+  console.log('request ' + JSON.stringify(request));
+  response.statusCode = 200;
+  response.write(fs.read(fs.workingDirectory + request.url));
+  response.close();
+});
