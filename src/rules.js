@@ -29,8 +29,8 @@ It must return either:
 */
 
     module.exports = [
+      require('./rules/value-var'),
       require('./rules/class-block'),
-      require('./rules/class-var'),
       require('./rules/block'),
       require('./rules/var')
     ];

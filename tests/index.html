@@ -28,18 +28,22 @@
 <script>
   document.addEventListener('DOMContentLoaded', function go() {
 
-    tests({
+    setTimeout(function() {
 
-      'jtmpl is a function': function() {
-        assert(typeof jtmpl === 'function');
-      },
+      tests({
 
-      'it processes #target[data-jtmpl]': function() {
-        assert(document.getElementById('target').childNodes.length > 0);
-      }
+        'jtmpl is a function': function() {
+          assert(typeof jtmpl === 'function');
+        },
 
-    });
+        'it processes #target[data-jtmpl]': function() {
+          assert(document.getElementById('target').childNodes.length > 0);
+        }
 
+      });
+
+    }, 500);
+    
     document.removeEventListener('DOMContentLoaded', go);
 
   });

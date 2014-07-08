@@ -726,8 +726,8 @@ It must return either:
 */
 
     module.exports = [
+      _dereq_('./rules/value-var'),
       _dereq_('./rules/class-block'),
-      _dereq_('./rules/class-var'),
       _dereq_('./rules/block'),
       _dereq_('./rules/var')
     ];
@@ -744,7 +744,7 @@ It must return either:
 
 
 
-},{"./rules/block":9,"./rules/class-block":10,"./rules/class-var":11,"./rules/var":12}],9:[function(_dereq_,module,exports){
+},{"./rules/block":9,"./rules/class-block":10,"./rules/value-var":11,"./rules/var":12}],9:[function(_dereq_,module,exports){
 /*
 
 ### {{#block}}
@@ -903,32 +903,70 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
 },{"../consts":4,"element-class":1}],11:[function(_dereq_,module,exports){
 /*
 
-### class="{{some-class}}"
+### (value | checked | selected)="{{val}}"
 
-Toggles class `some-class` in sync with boolean `model['some-class']`
+Handle "value", "checked" and "selected" attributes
 
 */
 
     module.exports = function(tag, node, attr, model, options) {
       var match = tag.match(_dereq_('../consts').RE_IDENTIFIER);
-      var ec = _dereq_('element-class')(node);
+      var prop = match && match[0];
 
       function change() {
-        ec[!!model(tag) && 'add' || 'remove'](klass);
+        var val = model(prop);
+        if (node[attr] !== val) {
+          node[attr] = val;
+        }
       }
       
-      if (attr === 'class' && match) {
-        // Remove tag from class list
-        ec.remove(options.delimiters[0] + tag + options.delimiters[1]);
-
+      if (match && ['value', 'checked', 'selected'].indexOf(attr) > -1) {
         model.on('change', prop, change);
         change();
 
-        return {};
+        // <select> option?
+        if (node.nodeName === 'option') {
+          node.parentNode.addEventListener('change', function() {
+            if (model(prop) !== node.selected) {
+              model(prop, node.selected);
+            }
+          });
+        }
+
+        // radio group?
+        if (node.type === 'radio' && node.name) {
+          node.addEventListener('change', function() {
+            if (node[attr]) {
+              for (var i = 0, 
+                  inputs = document.querySelectorAll('input[type=radio][name=' + node.name + ']'),
+                  len = inputs.length;
+                  i < len;
+                  i++
+                ) {
+                if (inputs[i] !== node) {
+                  inputs[i].dispatchEvent(new Event('change'));
+                }
+              }
+            }
+            model(prop, node[attr]);
+          });
+        }
+
+        // text input?
+        var eventType = ['text', 'password'].indexOf(node.type) > -1 ?
+          'input' : 'change';
+
+        node.addEventListener(eventType, function() {
+          model(prop, node[attr]);
+        });
+
+        return {
+          replace: '' 
+        };
       }
     }
 
-},{"../consts":4,"element-class":1}],12:[function(_dereq_,module,exports){
+},{"../consts":4}],12:[function(_dereq_,module,exports){
 /*
 
 ### {{var}}
