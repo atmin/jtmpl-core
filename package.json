@@ -13,10 +13,12 @@
   ],
   "devDependencies": {
     "browserify": "^4.2.0",
+    "connect": "^3.0.1",
     "element-class": "^0.1.1",
     "freak": "^0.0.4",
     "jshint": "^2.5.1",
     "phantom": "^0.6.4",
+    "serve-static": "^1.3.0",
     "simple-server": "^1.0.1",
     "uglify-js": "^2.4.14",
     "watchify": "^0.10.2"

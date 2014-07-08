@@ -23,25 +23,30 @@
 // });
 
 
-// var connect = require('connect');
-// var serveStatic = require('serve-static');
-// connect().use(serveStatic(__dirname)).listen(3000);
-require('simple-server'); 
-
+var app = require('connect')().use(require('serve-static')(__dirname));
+var srv = require('http').createServer(app);
 var phantom = require('phantom');
 
-phantom.create(function (ph) {
-  ph.createPage(function (page) {
+setTimeout(function() {
 
-    page.set('onConsoleMessage', function(msg) {
-      console.log(msg);
-    });
+  phantom.create(function (ph) {
+    ph.createPage(function (page) {
 
-    page.open('http://localhost:3000/spec/index.html', function (status) {
-      page.evaluate(function () {}, function (result) {
-        ph.exit();
-        // require('connect').close();
+      page.set('onConsoleMessage', function(msg) {
+        console.log(msg);
+      });
+
+      page.open('http://localhost:3000', function (status) {
+        page.evaluate(function () {}, function (result) {
+          ph.exit();
+          console.log('Closing server')
+          srv.close();
+        });
       });
     });
   });
-});
+
+}, 0);
+
+console.log('Listening on 3000...')
+srv.listen(3000);
