@@ -32,6 +32,7 @@ It must return either:
       require('./rules/value-var'),
       require('./rules/class-block'),
       require('./rules/block'),
+      require('./rules/partial'),
       require('./rules/var')
     ];
 

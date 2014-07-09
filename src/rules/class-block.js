@@ -19,7 +19,7 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
       
       if (attr === 'class' && match) {
         model.on('change', prop, change);
-        change();
+        setTimeout(change, 0);
 
         return {
           block: prop,

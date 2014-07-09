@@ -7,6 +7,31 @@
 </div>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+  .some-class {
+    color:red;
+    -webkit-transition:color 0.5s ease-in;  
+    -moz-transition:color 0.5s ease-in;  
+    -o-transition:color 0.5s ease-in;  
+    transition:color 0.5s ease-in;
+  }
+</style>
+
+
 <script id="app" data-model="#model" type="text/jtmpl">
   <h3><code>model('variable')</code></h3>
   <input value="{{variable}}"/> = {{variable}}
@@ -17,6 +42,19 @@
     <li>{{.}}</li>
   {{/numbers}}
   </ul>
+
+  <h3><code>model('table')</code></h3>
+  {{#table}}
+  <table>
+    <tbody>
+      {{#.}}
+      <tr>
+        {{#.}}<td>{{.}}</td>{{/}}
+      </tr>
+      {{/}}
+    </tbody>
+  </table>
+  {{/table}}
 
   <h3>Select and radiogroup</h3>
   <h5><code>model.options</code></h5>
@@ -34,17 +72,75 @@
     {{/options}}
   </p>
 
+  <h3>Toggle class</h3>
+  <p>
+    <label>
+      <input type="checkbox" checked="{{condition}}">
+      <code>model('condition')</code>
+    </label>
+  </p>
+  <p class="{{#condition}}some-class{{/}}">Lorem ipsum ...</p>
+  {{#condition}}
+    <p>The above paragraph has .some-class</p>
+  {{/condition}}
+
+  <h3>Tree via recursive partial</h3>
+  <div>
+    {{>'#tree-template'}}
+  </div>
 </script>
 
 
-<script id="model" type="ttt">
+<script id="tree-template" type="text/jtmpl">
+  <ul>
+    {{#tree}}
+    <li>
+      {{value}} 
+      <div>{{>"#tree-template"}}</div>
+    </li>
+    {{/tree}}
+  </ul>
+</script>
+
+
+<script id="model" type="text/jtmpl">
   {
     variable: 42,
+    condition: true,
     numbers: [1, 2, 3],
+    table: [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+    ],
     options: [
       { checked: true, text: 'one' },
       { checked: false, text: 'two' },
       { checked: false, text: 'three' }
+    ],
+    tree: [
+      {
+        value: 1,
+        tree: [
+          {
+            value: 2,
+            tree: [
+              {
+                value: 3
+              },
+              {
+                value: 4
+              }
+            ]
+          },
+          {
+            value: 5
+          }
+        ]
+      },
+      {
+        value: 6
+      }
     ]
   }
 </script>

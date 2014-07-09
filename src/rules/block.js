@@ -8,7 +8,7 @@ Can be bound to text node
 
     module.exports = function(tag, node, attr, model, options) {
       var compile = require('../compiler');
-      var match = tag.match(new RegExp('#' + require('../consts').RE_SRC_IDENTIFIER));
+      var match = tag.match(new RegExp('^#' + require('../consts').RE_SRC_IDENTIFIER));
       var prop = match && match[1];
       var template;
       var fragment = document.createDocumentFragment();
