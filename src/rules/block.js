@@ -58,7 +58,7 @@ Can be bound to text node
       }
 
       function change() {
-        var val = model(prop);
+        var val = prop === '.' ? model : model(prop);
         var i, len, render;
 
         // Delete old rendering

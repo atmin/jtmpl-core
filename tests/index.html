@@ -45,17 +45,15 @@
   </ul>
 
   <h5><code>model('table')</code></h5>
-  {{#table}}
   <table>
     <tbody>
-      {{#.}}
+      {{#table}}
       <tr>
         {{#.}}<td>{{.}}</td>{{/}}
       </tr>
-      {{/}}
+      {{/table}}
     </tbody>
   </table>
-  {{/table}}
 
   <h5><code>model('options')</code></h5>
   <p>
