@@ -33,17 +33,18 @@
 
 
 <script id="app" data-model="#model" type="text/jtmpl">
-  <h3><code>model('variable')</code></h3>
+  <h3><code>var model = jtmpl('#target');</code></h3>
+  <h5><code>model('variable')</code></h5>
   <input value="{{variable}}"/> = {{variable}}
 
-  <h3><code>model('options')</code></h3>
+  <h5><code>model('numbers')</code></h5>
   <ul>
   {{#numbers}}
     <li>{{.}}</li>
   {{/numbers}}
   </ul>
 
-  <h3><code>model('table')</code></h3>
+  <h5><code>model('table')</code></h5>
   {{#table}}
   <table>
     <tbody>
@@ -56,8 +57,7 @@
   </table>
   {{/table}}
 
-  <h3>Select and radiogroup</h3>
-  <h5><code>model.options</code></h5>
+  <h5><code>model('options')</code></h5>
   <p>
     <select>
       {{#options}}
@@ -65,14 +65,15 @@
       {{/options}}
     </select>
   </p>
-  <h5><code>model('options')</code> again</h5>
+
+  <h5><code>model('options')</code></h5>
   <p>
     {{#options}}
     <label><input type="radio" name="radio-group" checked={{checked}}>{{text}}</label>
     {{/options}}
   </p>
 
-  <h3>Toggle class</h3>
+  <h5><code>model('condition')</code></h5>
   <p>
     <label>
       <input type="checkbox" checked="{{condition}}">
@@ -84,10 +85,15 @@
     <p>The above paragraph has .some-class</p>
   {{/condition}}
 
-  <h3>Tree via recursive partial</h3>
-  <div>
-    {{>'#tree-template'}}
-  </div>
+  <h5><code>model('tree')</code></h5>
+  <ul>
+    {{#tree}}
+    <li>
+      {{value}} 
+      <div>{{>"#tree-template"}}</div>
+    </li>
+    {{/tree}}
+  </ul>
 </script>
 
 
@@ -170,7 +176,7 @@
         'it renders <ul> with 3 numbers': function() {
           assert(
             [].map.call(
-              document.querySelectorAll('li'),
+              document.querySelector('ul').querySelectorAll('li'),
               function(el) {
                 return el.innerHTML;
               }

@@ -40,10 +40,6 @@
           (typeof args[1] === 'string')
         ) &&
 
-        ( typeof args[2] === 'object' ||
-          typeof args[2] === 'string'
-        ) &&
-
         args[2] !== undefined
 
       ) {
@@ -57,21 +53,23 @@
           args[1];
 
         model = 
-          typeof args[2] === 'object' ?
+          typeof args[2] === 'function' ?
+            // already wrapped
             args[2] :
-            args[2].match(consts.RE_NODE_ID) ?
-              require('./eval-object')(document.querySelector(args[2]).innerHTML) :
-              undefined;
+            // otherwise wrap
+            jtmpl.freak(
+              typeof args[2] === 'object' ?
+                // object
+                args[2] :
 
-        model = 
-          typeof model === 'function' ?
-            // Freak instance
-            model :
-            typeof model === 'object' ?
-              // Wrap object
-              jtmpl.freak(model) :
-              // Simple value
-              jtmpl.freak({'.': model});
+                typeof args[2] === 'string' && args[2].match(consts.RE_NODE_ID) ?
+                  // src, load it
+                  require('./eval-object')
+                    (document.querySelector(args[2]).innerHTML) :
+
+                  // simple value, box it
+                  {'.': args[2]}
+            );
 
         if (target.nodeName === 'SCRIPT') {
           t = document.createElement('div');
