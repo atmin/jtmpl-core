@@ -16,6 +16,8 @@
 
     RE_NODE_ID: /^#[\w\.\-]+$/,
 
+    RE_ENDS_WITH_NODE_ID: /.+(#[\w\.\-]+)$/,
+
     RE_ANYTHING: '[\\s\\S]*?',
 
     RE_SPACE: '\\s*'

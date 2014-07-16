@@ -18,15 +18,14 @@ Replaces parent tag contents, always wrap in a tag
 
       var loader = match && 
         function() {
-          return (
-            function(src) {
-              jtmpl(anchor.parentNode, src, model);
-            }
-          )(match[1] ?
-            // Variable
-            model(match[1]) :
-            // Literal
-            match[2] || match[3]
+          require('../loader')(
+            anchor.parentNode,
+            match[1] ?
+              // Variable
+              model(match[1]) :
+              // Literal
+              match[2] || match[3],
+            model.values
           )
         };
 

@@ -3,10 +3,10 @@
 ## Main function
 
 */
+    var consts = require('./consts');
 
     function jtmpl() {
       var args = [].slice.call(arguments);
-      var consts = require('./consts');
       var target, t, template, model;
   
       // jtmpl('HTTP_METHOD', url[, parameters[, callback[, options]]])?
@@ -64,7 +64,7 @@
 
                 typeof args[2] === 'string' && args[2].match(consts.RE_NODE_ID) ?
                   // src, load it
-                  require('./eval-object')
+                  require('./loader')
                     (document.querySelector(args[2]).innerHTML) :
 
                   // simple value, box it
@@ -98,24 +98,12 @@ On page ready, process jtmpl targets
 */
 
     document.addEventListener('DOMContentLoaded', function() {
+
+      var loader = require('./loader');
       var targets = document.querySelectorAll('[data-jtmpl]');
-      var target, template;
 
       for (var i = 0, len = targets.length; i < len; i++) {
-        target = targets[i];
-        template = document.querySelector(target.getAttribute('data-jtmpl'));
-
-        jtmpl(
-          target, 
-          template.innerHTML, 
-          require('./eval-object')(
-            document.querySelector(
-              template.getAttribute('data-model')
-            ).innerHTML
-          )
-        );
-
-        // TODO: handle URL template and model
+        loader(targets[i], targets[i].getAttribute('data-jtmpl'));
       }
     });
 

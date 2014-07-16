@@ -17,10 +17,6 @@
 
 
 
-
-
-
-
 <style>
   .some-class {
     color:red;
@@ -28,6 +24,10 @@
     -moz-transition:color 0.5s ease-in;  
     -o-transition:color 0.5s ease-in;  
     transition:color 0.5s ease-in;
+  }
+
+  h5 {
+    margin-top: 4em;
   }
 </style>
 
@@ -37,12 +37,14 @@
   <h5><code>model('variable')</code></h5>
   <input value="{{variable}}"/> = {{variable}}
 
+
   <h5><code>model('numbers')</code></h5>
   <ul>
   {{#numbers}}
     <li>{{.}}</li>
   {{/numbers}}
   </ul>
+
 
   <h5><code>model('table')</code></h5>
   <table>
@@ -55,6 +57,7 @@
     </tbody>
   </table>
 
+
   <h5><code>model('options')</code></h5>
   <p>
     <select>
@@ -64,12 +67,14 @@
     </select>
   </p>
 
+
   <h5><code>model('options')</code></h5>
   <p>
     {{#options}}
     <label><input type="radio" name="radio-group" checked={{checked}}>{{text}}</label>
     {{/options}}
   </p>
+
 
   <h5><code>model('condition')</code></h5>
   <p>
@@ -83,8 +88,15 @@
     <p>The above paragraph has .some-class</p>
   {{/condition}}
 
+
   <h5><code>model('tree')</code></h5>
   <div>{{>"#tree-template"}}</div>
+  
+
+  <h5><code>model('externalPartial')</code></h5>
+  <div>
+    {{"//localhost:3000/tests/partials.html#a-partial"}}
+  </div>
 </script>
 
 
@@ -100,8 +112,8 @@
 </script>
 
 
-<script id="model" type="text/jtmpl">
-  {
+<script id="model">
+  if (typeof module !== 'undefined') module.exports = {
     variable: 42,
     condition: true,
     numbers: [1, 2, 3],
@@ -138,7 +150,10 @@
       {
         value: 6
       }
-    ]
+    ],
+    externalPartial: {
+      extended: 'extended property'
+    }
   }
 </script>
 
