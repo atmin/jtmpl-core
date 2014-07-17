@@ -3,8 +3,8 @@
 ### Partial 
 
 * {{>"#id"}}
-* {{>"//url"}}
-* {{>"//url#id"}}
+* {{>"url"}}
+* {{>"url#id"}}
 * {{>partialSrc}}
 
 Replaces parent tag contents, always wrap in a tag
@@ -25,7 +25,7 @@ Replaces parent tag contents, always wrap in a tag
               model(match[1]) :
               // Literal
               match[2] || match[3],
-            model.values
+            model
           )
         };
 

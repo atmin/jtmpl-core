@@ -5,11 +5,23 @@ Evaluate object from literal or CommonJS module
 */
 
   	/* jshint evil:true */
-    module.exports = function(target, src, obj) {
+    module.exports = function(target, src, model) {
 
       var consts = require('./consts');
 
-      obj = obj || {};
+      model = model || {};
+      if (typeof model !== 'function') {
+        model = jtmpl.freak(model);
+      }
+
+      function mixin(target, properties) {
+        for (var prop in properties) {
+          // Target doesn't already have prop?
+          if (target(prop) === undefined) {
+            target(prop, properties[prop]);
+          }
+        }
+      }
 
       function evalObject(body) {
         var result, module = { exports: {} };
@@ -24,12 +36,13 @@ Evaluate object from literal or CommonJS module
       function loadModel(src, template, doc) {
         if (!src) {
           // No source
-          jtmpl(target, template, obj);
+          jtmpl(target, template, model);
         }
         else if (src.match(consts.RE_NODE_ID)) {
           // Element in this document
           var element = doc.querySelector(src);
-          jtmpl(target, template, evalObject(element.innerHTML));
+          mixin(model, evalObject(element.innerHTML));
+          jtmpl(target, template, model);
         }
         else {
           // Get model via XHR
@@ -38,15 +51,8 @@ Evaluate object from literal or CommonJS module
             var element = match && new DOMParser()
               .parseFromString(resp, 'text/html')
               .querySelector(match[1]);
-
-            jtmpl(
-              target,
-              template,
-              require('object-extend')(
-                match ? evalObject(element.innerHTML) : {},
-                obj
-              )
-            );
+            mixin(model, match ? evalObject(element.innerHTML) : {});
+            jtmpl(target, template, model);
           });
         }
       }

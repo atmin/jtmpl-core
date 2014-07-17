@@ -95,7 +95,9 @@
 
   <h5><code>model('externalPartial')</code></h5>
   <div>
-    {{"//localhost:3000/tests/partials.html#a-partial"}}
+  {{#externalPartial}}
+    {{"partials.html#a-partial"}}
+  {{/}}
   </div>
 </script>
 

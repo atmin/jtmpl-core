@@ -1,0 +1,14 @@
+<script id="a-partial" type="text/jtmpl" data-model="#a-partial-model">
+  <p>
+    I am a partial in its own file, having own model and I am loaded into the <code>externalPartial</code> context of my parent.
+  </p>
+  <p>
+    My properties are: own = "{{own}}", extended = "{{extended}}"
+  </p>
+</script>
+
+<script id="a-partial-model" type="text/model">
+  {
+    own: 'own property, inherited by parent'
+  }
+</script>
