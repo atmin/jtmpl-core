@@ -35,7 +35,9 @@
 <script id="app" data-model="#model" type="text/jtmpl">
   <h3><code>var model = jtmpl('#target');</code></h3>
   <h5><code>model('variable')</code></h5>
-  <input value="{{variable}}"/> = {{variable}}
+  <input value="{{variable}}" {{! multiline
+    mustache
+    comment }}/> = {{variable}}
 
 
   <h5><code>model('numbers')</code></h5>

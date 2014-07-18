@@ -53,15 +53,21 @@ Return documentFragment
       }
 
 
-      function wrapTagsInHTMLComments(template, options) {
+      function preprocess(template, options) {
+        // Wrap each non-attribute tag in HTML comment,
+        // remove Mustache comments
         return template.replace(
           tokenizer(options, 'g'),
           function(match, match1, pos) {
             var head = template.slice(0, pos);
             var insideTag = !!head.match(RegExp('<' + consts.RE_SRC_IDENTIFIER + '[^>]*?$'));
             var insideComment = !!head.match(/<!--\s*$/);
+            var isMustacheComment = match1.indexOf('!') === 0;
+
             return insideTag || insideComment ?
-              match :
+              isMustacheComment ? 
+                '' :
+                match :
               '<!--' + match + '-->';
           }
         );
@@ -107,7 +113,7 @@ Return documentFragment
         body = template;
       }
       else {
-        template = wrapTagsInHTMLComments(template, options);
+        template = preprocess(template, options);
 
         body = document.createElement('body');
         body.innerHTML = template;
