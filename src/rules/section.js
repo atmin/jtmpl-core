@@ -1,6 +1,6 @@
 /*
 
-### {{#block}}
+### {{#section}}
 
 Can be bound to text node
 
@@ -83,7 +83,7 @@ Can be bound to text node
         }
 
         // Object?
-        else if (typeof val === 'function' && !val.len) {
+        else if (typeof val === 'function' && val.len === undefined) {
           render = compile(template, val);
           length = render.childNodes.length;
           anchor.parentNode.insertBefore(render, anchor);
@@ -103,18 +103,17 @@ Can be bound to text node
       if (match) {
 
         return {
+          prop: prop,
           block: prop,
 
           replace: function(tmpl, parent) {
             fragment.appendChild(anchor);
             template = tmpl;
 
-            model.on('change', prop, change);
-            // Exec async, change uses anchor.parentNode
-            setTimeout(change, 0);
-
             return anchor;
-          }
+          },
+
+          change: change
         };
 
       }

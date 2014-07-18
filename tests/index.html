@@ -45,6 +45,9 @@
   {{#numbers}}
     <li>{{.}}</li>
   {{/numbers}}
+  {{^numbers}}
+    <li>&lt;no numbers&gt;</li>
+  {{/numbers}}
   </ul>
 
 
@@ -89,6 +92,9 @@
   {{#condition}}
     <p>The above paragraph has .some-class</p>
   {{/condition}}
+  {{^condition}}
+    <p>Inverted section</p>
+  {{/}}
 
 
   <h5><code>model('tree')</code></h5>

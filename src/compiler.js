@@ -170,6 +170,11 @@ Return documentFragment
                     }
                   }
 
+                  if (rule.change) {
+                    model.on('change', rule.block || rule.prop, rule.change);
+                    rule.change();
+                  }
+
                 } 
 
               }
@@ -220,6 +225,12 @@ Return documentFragment
                     el.parentNode.replaceChild(rule.replace(block, el.parentNode), el);
                   }
                 }
+
+                if (rule.prop && rule.change) {
+                  model.on('change', rule.prop, rule.change);
+                  rule.change();
+                }
+
 
               }
 

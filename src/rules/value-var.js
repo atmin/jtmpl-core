@@ -18,9 +18,6 @@ Handle "value", "checked" and "selected" attributes
       }
       
       if (match && ['value', 'checked', 'selected'].indexOf(attr) > -1) {
-        model.on('change', prop, change);
-        change();
-
         // <select> option?
         if (node.nodeName === 'OPTION') {
           // Attach async, as parentNode is still documentFragment
@@ -61,7 +58,9 @@ Handle "value", "checked" and "selected" attributes
         });
 
         return {
-          replace: '' 
+          prop: prop,
+          replace: '',
+          change: change
         };
       }
     }

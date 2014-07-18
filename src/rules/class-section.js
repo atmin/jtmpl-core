@@ -11,15 +11,8 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
       var prop = match && match[1];
       var klass;
 
-      function change() {
-        var val = model(prop);
-        require('element-class')(node)
-          [!!val && 'add' || 'remove'](klass);
-      }
       
       if (attr === 'class' && match) {
-        model.on('change', prop, change);
-        setTimeout(change, 0);
 
         return {
           block: prop,
@@ -27,6 +20,12 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
           replace: function(tmpl) {
             klass = tmpl;
             return '';
+          },
+
+          change: function() {
+            var val = model(prop);
+            require('element-class')(node)
+              [!!val && 'add' || 'remove'](klass);
           }
         };
       }

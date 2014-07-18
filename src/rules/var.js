@@ -7,38 +7,32 @@ Can be bound to text node data or attribute
 */
 
     module.exports = function(tag, node, attr, model, options) {
-      var react, target;
+      var react, target, change;
       
       if (tag.match(require('../consts').RE_IDENTIFIER)) {
 
-        // Attribute?
         if (attr) {
-          model.on('change', tag,
-            function() {
-              var val = model(tag);
-              return val ?
-                node.setAttribute(attr, val) :
-                node.removeAttribute(attr);
-            }
-          );
+          // Attribute
+          change = function() {
+            var val = model(tag);
+            return val ?
+              node.setAttribute(attr, val) :
+              node.removeAttribute(attr);
+          };
         }
-        // Text node
         else {
+          // Text node
           target = document.createTextNode('');
-
-          model.on('change', tag,
-            function() {
-              target.data = model(tag) || '';
-            }
-          );
+          change = function() {
+            target.data = model(tag) || '';
+          };
         }
-
-        // Trigger change
-        model(tag, model(tag));
 
         // Match found
         return {
-          replace: target
+          prop: tag,
+          replace: target,
+          change: change
         };
       }
     }

@@ -30,8 +30,9 @@ It must return either:
 
     module.exports = [
       require('./rules/value-var'),
-      require('./rules/class-block'),
-      require('./rules/block'),
+      require('./rules/class-section'),
+      require('./rules/section'),
+      require('./rules/inverted-section'),
       require('./rules/partial'),
       require('./rules/var')
     ];
