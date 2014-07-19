@@ -54,9 +54,19 @@ Return documentFragment
 
 
       function preprocess(template, options) {
-        // Wrap each non-attribute tag in HTML comment,
-        // remove Mustache comments
-        return template.replace(
+        // replace {{{tag}}} with {{&tag}}
+        template = template.replace(
+          RegExp(
+            escapeRE(options.delimiters[0] + '{') +
+            consts.RE_SRC_IDENTIFIER +
+            escapeRE('}' + options.delimiters[1]),
+            'g'
+          ),
+          options.delimiters[0] + '&$1' + options.delimiters[1]
+        );
+        // wrap each non-attribute tag in HTML comment,
+        // remove Mustache comments,
+        template = template.replace(
           tokenizer(options, 'g'),
           function(match, match1, pos) {
             var head = template.slice(0, pos);
@@ -71,6 +81,7 @@ Return documentFragment
               '<!--' + match + '-->';
           }
         );
+        return template;
       }
 
 

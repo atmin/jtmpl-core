@@ -43,10 +43,18 @@
 
   <script id="app" data-model="#model" type="text/jtmpl">
     <h3><code>var model = jtmpl('#target');</code></h3>
+
+
     <h4><code>model('variable')</code></h4>
     <input value="{{variable}}" {{! multiline
       mustache
       comment }}/> = <span id="variable">{{variable}}</span>
+
+
+    <h4><code>model('innerHTML')</code></h4>
+    <div>
+      {{{innerHTML}}}
+    </div>
 
 
     <h4><code>model('numbers')</code></h4>
@@ -134,6 +142,7 @@
   <script id="model">
     if (typeof module !== 'undefined') module.exports = {
       variable: 42,
+      innerHTML: 'Try <code>jtmpl("#target")("innerHTML", "<p>new content</p>")</code> on the console to replace me.',
       condition: true,
       numbers: [1, 2, 3],
       table: [
