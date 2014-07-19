@@ -16,25 +16,31 @@ Replaces parent tag contents, always wrap in a tag
       var match = tag.match(consts.RE_PARTIAL);
       var anchor = document.createComment('');
 
-      if (match) {
-
-        return {
-          prop: match[1],
-
-          replace: anchor,
-          
-          change: function() {
-            require('../loader')(
-              anchor.parentNode,
-              match[1] ?
-                // Variable
-                model(match[1]) :
-                // Literal
-                match[2] || match[3],
-              model
-            )
-          }
+      var loader = match && 
+        function() {
+          require('../loader')(
+            anchor.parentNode,
+            match[1] ?
+              // Variable
+              model(match[1]) :
+              // Literal
+              match[2] || match[3],
+            model
+          )
         };
 
+      if (match) {
+
+        if (match[1]) {
+          // Variable
+          model.on('change', match[1], loader);
+        }
+
+        // Load async
+        setTimeout(loader, 0);
+
+        return {
+          replace: anchor
+        };
       }
     }
