@@ -205,7 +205,7 @@ Return documentFragment
 
             if ( (match = el.data.match(tokenizer(options))) ) {
 
-              rule = matchRules(el.data, match[1], null, model, options);
+              rule = matchRules(el.data, node, null, model, options);
               if (rule) {
 
                 // DOM replacement?

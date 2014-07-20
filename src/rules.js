@@ -34,17 +34,6 @@ It must return either:
       require('./rules/section'),
       require('./rules/inverted-section'),
       require('./rules/partial'),
+      require('./rules/unescaped-var'),
       require('./rules/var')
     ];
-
-
-
-
-
-
-
-
-
-
-
-
