@@ -9,6 +9,8 @@
 
 <script id="a-partial-model" type="text/model">
   {
-    own: 'own property, inherited by parent'
+    __init__: function() {
+      this('own', 'own property, inherited by parent, initialized by __init__');
+    }
   }
 </script>

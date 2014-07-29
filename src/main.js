@@ -118,6 +118,20 @@ Expose freak
 
 
 
+/*
+
+Plugins
+
+*/
+
+    jtmpl.plugins = {
+      init: function(arg) {
+        if (typeof arg === 'function') {
+          arg.call(this);
+        }
+      }
+    };
+
 
 /*
 

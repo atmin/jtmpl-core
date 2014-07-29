@@ -141,6 +141,13 @@
 
   <script id="model">
     if (typeof module !== 'undefined') module.exports = {
+
+      // Plugins
+      __init__: function() {
+        this('initialized', true);
+      },
+
+      // Fields
       variable: 42,
       innerHTML: 'Try <code>jtmpl("#target")("innerHTML", "&lt;p&gt;new content&lt;/p&gt;")</code> on the console to replace me.',
       condition: true,
@@ -201,6 +208,10 @@
             assert(document.getElementById('target').childNodes.length > 0);
           },
 
+          '__init__ plugin is executed': function() {
+            assert(jtmpl('#target')('initialized'));
+          },
+
           'jtmpl("#target") returns wrapped model': function() {
             assert(Array.isArray(jtmpl('#target')('numbers').values));
           },
@@ -237,6 +248,10 @@
                 return a + ', ' + b;
               }) === "1, 2, 3, 4, 5, 6, 7, 8, 9"
             );
+          },
+
+          'it renders class="{{#condition}}some-class{{/}}"': function() {
+            assert(document.querySelectorAll('.some-class').length === 1);
           }
 
         });

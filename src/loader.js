@@ -16,9 +16,28 @@ Evaluate object from literal or CommonJS module
 
       function mixin(target, properties) {
         for (var prop in properties) {
-          // Target doesn't already have prop?
-          if (target(prop) === undefined) {
-            target(prop, properties[prop]);
+          if (prop.indexOf('__') === 0 &&
+              prop.lastIndexOf('__') === prop.length - 2) {
+            if (target.values[prop] === undefined) {
+              target.values[prop] = properties[prop];
+            }
+          }
+          else {
+            // Target doesn't already have prop?
+            if (target(prop) === undefined) {
+              target(prop, properties[prop]);
+            }
+          }
+        }
+      }
+
+      function applyPlugins() {
+        var prop, arg;
+        for (prop in jtmpl.plugins) {
+          plugin = jtmpl.plugins[prop];
+          arg = model.values['__' + prop + '__'];
+          if (typeof plugin === 'function' && arg !== undefined) {
+            plugin.call(model, arg);
           }
         }
       }
@@ -42,6 +61,7 @@ Evaluate object from literal or CommonJS module
           // Element in this document
           var element = doc.querySelector(src);
           mixin(model, evalObject(element.innerHTML));
+          applyPlugins();
           jtmpl(target, template, model);
         }
         else {
@@ -52,6 +72,7 @@ Evaluate object from literal or CommonJS module
               .parseFromString(resp, 'text/html')
               .querySelector(match[1]);
             mixin(model, match ? evalObject(element.innerHTML) : {});
+            applyPlugins();
             jtmpl(target, template, model);
           });
         }

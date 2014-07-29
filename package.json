@@ -26,8 +26,8 @@
     "browserify": "browserify --standalone jtmpl src/main.js > build/jtmpl.js",
     "watch": "watchify --standalone jtmpl src/main.js -o build/jtmpl.js -dv",
     "uglify": "uglifyjs build/jtmpl.js -c -m --screw-ie8 -o build/jtmpl.min.js",
-    "start": "simple-server",
-    "dev": "npm run start & (sleep 1 && xdg-open http://localhost:3000/tests/index.html) && npm run watch",
+    "start": "npm run dev",
+    "dev": "simple-server & (sleep 1 && xdg-open http://localhost:3000/tests/index.html) && npm run watch",
     "build": "npm run jshint && npm run browserify && npm run uglify",
     "test": "npm run build && phantomjs tests/phantom.js"
   }
