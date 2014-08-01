@@ -71,7 +71,7 @@ Evaluate object from literal or CommonJS module
             var element = match && new DOMParser()
               .parseFromString(resp, 'text/html')
               .querySelector(match[1]);
-            mixin(model, match ? evalObject(element.innerHTML) : {});
+            mixin(model, evalObject(match ? element.innerHTML : resp));
             applyPlugins();
             jtmpl(target, template, model);
           });
