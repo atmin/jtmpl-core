@@ -1,19 +1,20 @@
 <!doctype html>
 
 <head>
+  <link rel="stylesheet" href="qunit.css">
+  <script src="qunit.js"></script>
   <script src="blanket.min.js"></script>
-  <script src="../build/jtmpl.js" data-cover></script>
-  <script src="tinytest.js"></script>
+  <script src="../jtmpl-core.js" data-cover></script>
   <style>
     .some-class {
       color:red;
-      -webkit-transition:color 0.5s ease-in;  
-      -moz-transition:color 0.5s ease-in;  
-      -o-transition:color 0.5s ease-in;  
+      -webkit-transition:color 0.5s ease-in;
+      -moz-transition:color 0.5s ease-in;
+      -o-transition:color 0.5s ease-in;
       transition:color 0.5s ease-in;
     }
 
-    h4 {
+    h1, h2, h3, h4 {
       margin-top: 4em;
     }
   </style>
@@ -31,6 +32,8 @@
       {{#items}}{{.}}&nbsp;{{/}}
     </div>
 
+    <h2>Tests</h2>
+    <div id="qunit"></div>
   </div>
 
 
@@ -121,7 +124,7 @@
 
     <h4><code>model('tree')</code></h4>
     <div>{{>"#tree-template"}}</div>
-    
+
 
     <h4><code>model('externalPartial')</code></h4>
     <div>
@@ -136,7 +139,7 @@
     <ul>
       {{#tree}}
       <li>
-        {{value}} 
+        {{value}}
         <div>{{>"#tree-template"}}</div>
       </li>
       {{/tree}}
@@ -201,67 +204,70 @@
   <script>
     document.addEventListener('DOMContentLoaded', function go() {
 
-      setTimeout(function() {
+      /*setTimeout(function() {
 
         tests({
 
-          'jtmpl is a function': function() {
-            assert(typeof jtmpl === 'function');
-          },
-
-          'it processes #target[data-jtmpl] elements': function() {
-            assert(document.getElementById('target').childNodes.length > 0);
-          },
-
-          '__init__ plugin is executed': function() {
-            assert(jtmpl('#target')('initialized'));
-          },
-
-          'jtmpl("#target") returns wrapped model': function() {
-            assert(Array.isArray(jtmpl('#target')('numbers').values));
-          },
-
-          'it renders <input value="{{variable}}">': function() {
-            assert(document.querySelector('input').value === "42");
-          },
-
-          'it renders {{variable}}': function() {
-            assert(document.querySelector('#variable').innerHTML === "42");
-          },
-
-          'it renders {{#numbers}}': function() {
-            assert(
-              [].map.call(
-                document.querySelector('ul').querySelectorAll('li'),
-                function(el) {
-                  return el.innerHTML;
-                }
-              ).reduce(function(a,b) {
-                return a + ', ' + b;
-              }) === '1, 2, 3'
-            );
-          },
-
-          'it renders {{#table}}': function() {
-            assert(
-              [].map.call(
-                document.querySelector('table').querySelectorAll('td'),
-                function(el) {
-                  return el.innerHTML;
-                }
-              ).reduce(function(a,b) {
-                return a + ', ' + b;
-              }) === "1, 2, 3, 4, 5, 6, 7, 8, 9"
-            );
-          },
-
-          'it renders class="{{#condition}}some-class{{/}}"': function() {
-            assert(document.querySelectorAll('.some-class').length === 1);
-          }
-
         });
 
-      }, 0);
+      }, 0);*/
+
+      test('all', function() {
+        ok(typeof jtmpl === 'function', 'jtmpl is a function');
+
+        ok(document.getElementById('target').childNodes.length > 0,
+          'it processes #target[data-jtmpl] elements');
+
+        ok(
+          jtmpl('#target')('initialized'),
+          '__init__ plugin is executed'
+        );
+
+        ok(
+          Array.isArray(jtmpl('#target')('numbers').values),
+          'jtmpl("#target") returns wrapped model'
+        );
+
+        ok(
+          document.querySelector('input').value === "42",
+          'it renders <input value="{{variable}}">'
+        );
+
+        ok(
+          document.querySelector('#variable').innerHTML === "42",
+          'it renders {{variable}}'
+        );
+
+        ok(
+          [].map.call(
+            document.querySelector('ul').querySelectorAll('li'),
+            function(el) {
+              return el.innerHTML;
+            }
+          ).reduce(function(a,b) {
+            return a + ', ' + b;
+          }) === '1, 2, 3',
+          'it renders {{#numbers}}'
+        );
+
+        ok(
+          [].map.call(
+            document.querySelector('table').querySelectorAll('td'),
+            function(el) {
+              return el.innerHTML;
+            }
+          ).reduce(function(a,b) {
+            return a + ', ' + b;
+          }) === "1, 2, 3, 4, 5, 6, 7, 8, 9",
+          'it renders {{#table}}'
+        ),
+
+        ok(
+          document.querySelectorAll('.some-class').length === 1,
+          'it renders class="{{#condition}}some-class{{/}}"'
+        );
+
+      });
 
       document.removeEventListener('DOMContentLoaded', go);
 

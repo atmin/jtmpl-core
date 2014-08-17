@@ -23,9 +23,9 @@
   },
   "scripts": {
     "jshint": "jshint src/*.js",
-    "browserify": "browserify --standalone jtmpl src/main.js > build/jtmpl.js",
-    "watch": "watchify --standalone jtmpl src/main.js -o build/jtmpl.js -dv",
-    "uglify": "uglifyjs build/jtmpl.js -c -m --screw-ie8 -o build/jtmpl.min.js",
+    "browserify": "browserify --standalone jtmpl src/main.js > jtmpl-core.js",
+    "watch": "watchify --standalone jtmpl src/main.js -o jtmpl-core.js -dv",
+    "uglify": "uglifyjs jtmpl-core.js -c -m --screw-ie8 -o jtmpl-core.min.js",
     "start": "npm run dev",
     "dev": "simple-server & (sleep 1 && xdg-open http://localhost:3000/tests/index.html) && npm run watch",
     "build": "npm run jshint && npm run browserify && npm run uglify",

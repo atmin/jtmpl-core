@@ -592,7 +592,7 @@ Evaluate object from literal or CommonJS module
 
 */
 
-  	/* jshint evil:true */
+    /* jshint evil:true */
     module.exports = function(target, src, model) {
 
       var consts = _dereq_('./consts');
@@ -677,7 +677,14 @@ Evaluate object from literal or CommonJS module
           // Get template via XHR
           jtmpl('GET', src, function(resp) {
             var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
-            var doc = match ? new DOMParser().parseFromString(resp, 'text/html') : document;
+            var doc;
+            if (match) {
+              doc = document.implementation.createHTMLDocument('');
+              doc.documentElement.innerHTML = resp;
+            }
+            else {
+              doc = document;
+            }
             var element = match && doc.querySelector(match[1]);
 
             loadModel(
