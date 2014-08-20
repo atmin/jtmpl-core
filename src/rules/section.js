@@ -39,7 +39,7 @@ Can be bound to text node
             i < count; i++) {
           fragment.appendChild(compile(template, model(prop)(index + i)));
         }
-          
+
         parent.insertBefore(fragment, parent.childNodes[pos]);
         length = length + size;
       }
@@ -68,7 +68,7 @@ Can be bound to text node
         }
 
         // Array?
-        if (typeof val === 'function' && val.len) {
+        if (typeof val === 'function' && val.len !== undefined) {
           val.on('insert', insert);
           val.on('delete', del);
           render = document.createDocumentFragment();
@@ -88,7 +88,7 @@ Can be bound to text node
           length = render.childNodes.length;
           anchor.parentNode.insertBefore(render, anchor);
         }
-        
+
         // Cast to boolean
         else {
           if (!!val) {

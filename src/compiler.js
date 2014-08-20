@@ -26,7 +26,7 @@ Return documentFragment
 
       function tokenizer(options, flags) {
         return RegExp(
-          escapeRE(options.delimiters[0]) + 
+          escapeRE(options.delimiters[0]) +
           '(' + consts.RE_ANYTHING + ')' +
           escapeRE(options.delimiters[1]),
           flags
@@ -44,7 +44,7 @@ Return documentFragment
 
         for (i = 0; i < rulesLen; i++) {
           match = rules[i](tag, node, attr, model, options);
-          
+
           if (match) {
             match.index = i;
             return match;
@@ -75,7 +75,7 @@ Return documentFragment
             var isMustacheComment = match1.indexOf('!') === 0;
 
             return insideTag || insideComment ?
-              isMustacheComment ? 
+              isMustacheComment ?
                 '' :
                 match :
               '<!--' + match + '-->';
@@ -88,7 +88,7 @@ Return documentFragment
       function matchEndBlock(block, template, options) {
         var match = template.match(
           RegExp(
-            escapeRE(options.delimiters[0]) + 
+            escapeRE(options.delimiters[0]) +
             '\\/' + consts.RE_SRC_IDENTIFIER + '?' +
             escapeRE(options.delimiters[1])
           )
@@ -106,10 +106,10 @@ Return documentFragment
       var freak = require('freak');
 
       // Init
-      
+
       options = options || require('./default-options');
 
-      model = 
+      model =
         typeof model === 'function' ?
           // Freak instance
           model :
@@ -174,7 +174,7 @@ Return documentFragment
                     }
                     else {
                       // Replace full block tag body with rule contents
-                      attr.value = 
+                      attr.value =
                         attr.value.slice(0, beginPos) +
                         rule.replace(attr.value.slice(bodyBeginPos, match.index)) +
                         attr.value.slice(match.index + match[0].length);
@@ -186,7 +186,7 @@ Return documentFragment
                     rule.change();
                   }
 
-                } 
+                }
 
               }
 
@@ -220,7 +220,7 @@ Return documentFragment
 
                   for (i++;
 
-                      (i < len) && 
+                      (i < len) &&
                       !matchEndBlock(rule.block, children[i].data || '', options);
 
                       i++) {
