@@ -137,12 +137,16 @@ Return documentFragment
 
         // Shallow copy of node and attributes (if element)
         el = node.cloneNode(false);
+
         fragment.appendChild(el);
 
         switch (el.nodeType) {
 
           // Element node
           case 1:
+
+            // Remember model
+            el.__jtmpl__ = model;
 
             // Check attributes
             for (ai = 0, alen = el.attributes.length; ai < alen; ai++) {
