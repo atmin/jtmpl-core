@@ -1,5 +1,5 @@
 /*
- 
+
 ## Main function
 
 */
@@ -8,7 +8,7 @@
     function jtmpl() {
       var args = [].slice.call(arguments);
       var target, t, template, model;
-  
+
       // jtmpl('HTTP_METHOD', url[, parameters[, callback[, options]]])?
       if (['GET', 'POST'].indexOf(args[0]) > -1) {
         return require('./xhr').apply(null, args);
@@ -20,22 +20,13 @@
         return document.querySelector(args[0]).__jtmpl__;
       }
 
-      // jtmpl(template, model[, options])?
-      else if (
-        typeof args[0] === 'string' && 
-        ['object', 'function'].indexOf(typeof args[1]) > -1 &&
-        ['object', 'undefined'].indexOf(typeof args[2]) > -1
-      ) {
-        return require('./compiler').apply(null, args);
-      }
-
       // jtmpl(target, template, model[, options])?
       else if (
-        ( args[0] instanceof Node || 
+        ( args[0] instanceof Node ||
           (typeof args[0] === 'string')
         ) &&
 
-        ( args[1] instanceof Node || 
+        ( args[1] instanceof Node ||
           args[1] instanceof DocumentFragment ||
           (typeof args[1] === 'string')
         ) &&
@@ -52,7 +43,7 @@
           document.querySelector(args[1]).innerHTML :
           args[1];
 
-        model = 
+        model =
           typeof args[2] === 'function' ?
             // already wrapped
             args[2] :
