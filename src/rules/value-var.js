@@ -16,17 +16,20 @@ Handle "value", "checked" and "selected" attributes
           node[attr] = val;
         }
       }
-      
+
       if (match && ['value', 'checked', 'selected'].indexOf(attr) > -1) {
         // <select> option?
         if (node.nodeName === 'OPTION') {
           // Attach async, as parentNode is still documentFragment
           setTimeout(function() {
-            node.parentNode.addEventListener('change', function() {
-              if (model(prop) !== node.selected) {
-                model(prop, node.selected);
-              }
-            });
+            if (node && node.parentNode && !node.parentNode.__value_var_change) {
+              node.parentNode.__value_var_change = true;
+              node.parentNode.addEventListener('change', function() {
+                if (model(prop) !== node.selected) {
+                  model(prop, node.selected);
+                }
+              });
+            }
           }, 0);
         }
 
@@ -34,7 +37,7 @@ Handle "value", "checked" and "selected" attributes
         if (node.type === 'radio' && node.name) {
           node.addEventListener('change', function() {
             if (node[attr]) {
-              for (var i = 0, 
+              for (var i = 0,
                   inputs = document.querySelectorAll('input[type=radio][name=' + node.name + ']'),
                   len = inputs.length;
                   i < len;

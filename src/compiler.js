@@ -185,6 +185,10 @@ Return documentFragment
                     }
                   }
 
+                  if (rule.replace !== undefined) {
+                    attr.value = rule.replace;
+                  }
+
                   if (rule.change) {
                     model.on('change', rule.block || rule.prop, rule.change);
                     rule.change();

@@ -14,7 +14,7 @@
   "devDependencies": {
     "browserify": "^4.2.0",
     "element-class": "^0.1.1",
-    "freak": "^0.1.0",
+    "freak": "0.2.1",
     "jshint": "^2.5.1",
     "phantomjs": "^1.9.7-12",
     "simple-server": "^1.0.1",
