@@ -655,7 +655,7 @@ Evaluate object from literal or CommonJS module
           plugin = jtmpl.plugins[prop];
           arg = model.values['__' + prop + '__'];
           if (typeof plugin === 'function' && arg !== undefined) {
-            plugin.call(model, arg);
+            plugin.call(model, arg, target);
           }
         }
       }
