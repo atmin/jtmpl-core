@@ -1,6 +1,6 @@
 {
   "name": "jtmpl-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/atmin/jtmpl-core.git"
@@ -14,7 +14,7 @@
   "devDependencies": {
     "browserify": "^4.2.0",
     "element-class": "^0.1.1",
-    "freak": "0.2.1",
+    "freak": "0.2.2",
     "jshint": "^2.5.1",
     "phantomjs": "^1.9.7-12",
     "simple-server": "^1.0.1",
