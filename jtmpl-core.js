@@ -1246,8 +1246,7 @@ Handle "value", "checked" and "selected" attributes
         if (node.nodeName === 'OPTION') {
           // Attach async, as parentNode is still documentFragment
           setTimeout(function() {
-            if (node && node.parentNode && !node.parentNode.__value_var_change) {
-              node.parentNode.__value_var_change = true;
+            if (node && node.parentNode) {
               node.parentNode.addEventListener('change', function() {
                 if (model(prop) !== node.selected) {
                   model(prop, node.selected);
