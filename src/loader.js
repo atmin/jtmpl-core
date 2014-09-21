@@ -42,14 +42,22 @@ Evaluate object from literal or CommonJS module
         }
       }
 
-      function evalObject(body) {
+      function evalObject(body, src) {
         var result, module = { exports: {} };
+        src = src ?
+          '\n//@ sourceURL=' + src +
+          '\n//# sourceURL=' + src :
+          '';
         return (body.match(/^\s*{[\S\s]*}\s*$/)) ?
           // Literal
-          eval('result=' + body) :
+          eval('(function(){ var result=' + body + '; return result})()' + src) :
           // CommonJS module
-          new Function('module', 'exports', body + ';return module.exports;')
-            (module, module.exports);
+          eval(
+            '(function(module, exports){' +
+            body +
+            ';return module.exports})' +
+            src
+          )(module, module.exports);
       }
 
       function loadModel(src, template, doc) {
@@ -60,7 +68,7 @@ Evaluate object from literal or CommonJS module
         else if (src.match(consts.RE_NODE_ID)) {
           // Element in this document
           var element = doc.querySelector(src);
-          mixin(model, evalObject(element.innerHTML));
+          mixin(model, evalObject(element.innerHTML, src));
           applyPlugins();
           jtmpl(target, template, model);
         }
@@ -71,7 +79,7 @@ Evaluate object from literal or CommonJS module
             var element = match && new DOMParser()
               .parseFromString(resp, 'text/html')
               .querySelector(match[1]);
-            mixin(model, evalObject(match ? element.innerHTML : resp));
+            mixin(model, evalObject(match ? element.innerHTML : resp, src));
             applyPlugins();
             jtmpl(target, template, model);
           });
