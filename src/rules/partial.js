@@ -16,7 +16,7 @@ Replaces parent tag contents, always wrap in a tag
       var match = tag.match(consts.RE_PARTIAL);
       var anchor = document.createComment('');
 
-      var loader = match && 
+      var loader = match &&
         function() {
           require('../loader')(
             anchor.parentNode,

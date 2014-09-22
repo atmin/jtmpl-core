@@ -87,6 +87,8 @@ Evaluate object from literal or CommonJS module
       }
 
       function loadTemplate() {
+        if (!src) return;
+
         if (src.match(consts.RE_NODE_ID)) {
           // Template is the contents of element
           // belonging to this document

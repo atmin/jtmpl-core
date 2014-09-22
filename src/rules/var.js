@@ -8,7 +8,7 @@ Can be bound to text node data or attribute
 
     module.exports = function(tag, node, attr, model, options) {
       var react, target, change;
-      
+
       if (tag.match(require('../consts').RE_IDENTIFIER)) {
 
         if (attr) {

@@ -13,7 +13,7 @@ Handle "value", "checked" and "selected" attributes
       function change() {
         var val = model(prop);
         if (node[attr] !== val) {
-          node[attr] = val;
+          node[attr] = val || '';
         }
       }
 

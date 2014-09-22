@@ -582,7 +582,7 @@ Return documentFragment
 
 ## Constants
 
-*/    
+*/
   module.exports = {
 
     RE_IDENTIFIER: /^[\w\.\-]+$/,
@@ -705,6 +705,8 @@ Evaluate object from literal or CommonJS module
       }
 
       function loadTemplate() {
+        if (!src) return;
+
         if (src.match(consts.RE_NODE_ID)) {
           // Template is the contents of element
           // belonging to this document
@@ -926,7 +928,7 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
       var prop = match && match[1];
       var klass;
 
-      
+
       if (attr === 'class' && match) {
 
         return {
@@ -1035,7 +1037,7 @@ Replaces parent tag contents, always wrap in a tag
       var match = tag.match(consts.RE_PARTIAL);
       var anchor = document.createComment('');
 
-      var loader = match && 
+      var loader = match &&
         function() {
           _dereq_('../loader')(
             anchor.parentNode,
@@ -1189,7 +1191,7 @@ Can be bound to text node
 },{"../compiler":3,"../consts":4}],13:[function(_dereq_,module,exports){
 /*
 
-### {{&var}} 
+### {{&var}}
 
 (`{{{var}}}` is replaced on preprocessing step)
 
@@ -1202,7 +1204,7 @@ Can be bound to node innerHTML
       var prop = match && match[1];
       var anchor = document.createComment('');
       var length = 0;
-      
+
       if (match && !attr) {
         return {
           prop: prop,
@@ -1218,7 +1220,7 @@ Can be bound to node innerHTML
               length--;
             }
 
-            el.innerHTML = model(prop);
+            el.innerHTML = model(prop) || '';
             length = el.childNodes.length;
             for (i = 0; i < length; i++) {
               fragment.appendChild(el.childNodes[0]);
@@ -1245,7 +1247,7 @@ Handle "value", "checked" and "selected" attributes
       function change() {
         var val = model(prop);
         if (node[attr] !== val) {
-          node[attr] = val;
+          node[attr] = val || '';
         }
       }
 
@@ -1310,7 +1312,7 @@ Can be bound to text node data or attribute
 
     module.exports = function(tag, node, attr, model, options) {
       var react, target, change;
-      
+
       if (tag.match(_dereq_('../consts').RE_IDENTIFIER)) {
 
         if (attr) {

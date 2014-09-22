@@ -57,11 +57,17 @@
     <input value="{{variable}}" {{! multiline
       mustache
       comment }}/> = <span id="variable">{{variable}}</span>
+    <h4><code>model('nonExistentVariable')</code></h4>
+    <input value="{{nonExistentVariable}}"> = <span>{{nonExistentVariable}}</span>
 
 
     <h4><code>model('innerHTML')</code></h4>
-    <div>
+    <div id="innerHTML">
       {{{innerHTML}}}
+    </div>
+    <h4><code>model('nonExistentVariable')</code> unescaped</h4>
+    <div id="nonExistentVariable">
+      {{{nonExistentVariable}}}
     </div>
 
 
@@ -129,7 +135,14 @@
     <h4><code>model('externalPartial')</code></h4>
     <div>
     {{#externalPartial}}
-      {{"partials.html#a-partial"}}
+      {{>"partials.html#a-partial"}}
+    {{/}}
+    </div>
+
+    <h4><code>model('dynamicPartial')</code></h4>
+    <div>
+    {{#externalPartial}}
+      {{>dynamicPartial}}
     {{/}}
     </div>
   </script>
@@ -195,7 +208,8 @@
         }
       ],
       externalPartial: {
-        extended: 'extended property'
+        extended: 'extended property',
+        dynamicPartial: 'partials.html#a-partial'
       }
     }
   </script>
@@ -203,14 +217,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function go() {
-
-      /*setTimeout(function() {
-
-        tests({
-
-        });
-
-      }, 0);*/
 
       test('all', function() {
         ok(typeof jtmpl === 'function', 'jtmpl is a function');
@@ -234,8 +240,25 @@
         );
 
         ok(
+          document.querySelectorAll('input')[1].value === "",
+          'it renders <input value="{{nonExistentVariable}}">'
+        );
+
+        ok(
           document.querySelector('#variable').innerHTML === "42",
           'it renders {{variable}}'
+        );
+
+        ok(
+          document.querySelector('#innerHTML').innerHTML.trim() ===
+            'Try <code>jtmpl("#target")("innerHTML", "&lt;p&gt;new content&lt;/p&gt;")' +
+            '</code> on the console to replace me.<!---->',
+          'it renders {{{innerHTML}}}'
+        );
+
+        ok(
+          document.querySelector('#nonExistentVariable').innerHTML.trim() === '<!---->',
+          'it renders {{{nonExistentVariable}}}'
         );
 
         ok(

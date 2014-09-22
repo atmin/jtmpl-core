@@ -2,7 +2,7 @@
 
 ## Constants
 
-*/    
+*/
   module.exports = {
 
     RE_IDENTIFIER: /^[\w\.\-]+$/,

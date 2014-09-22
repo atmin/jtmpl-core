@@ -11,7 +11,7 @@ Toggles class `some-class` in sync with boolean `model.ifCondition`
       var prop = match && match[1];
       var klass;
 
-      
+
       if (attr === 'class' && match) {
 
         return {

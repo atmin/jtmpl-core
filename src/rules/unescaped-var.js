@@ -1,6 +1,6 @@
 /*
 
-### {{&var}} 
+### {{&var}}
 
 (`{{{var}}}` is replaced on preprocessing step)
 
@@ -13,7 +13,7 @@ Can be bound to node innerHTML
       var prop = match && match[1];
       var anchor = document.createComment('');
       var length = 0;
-      
+
       if (match && !attr) {
         return {
           prop: prop,
@@ -29,7 +29,7 @@ Can be bound to node innerHTML
               length--;
             }
 
-            el.innerHTML = model(prop);
+            el.innerHTML = model(prop) || '';
             length = el.childNodes.length;
             for (i = 0; i < length; i++) {
               fragment.appendChild(el.childNodes[0]);
