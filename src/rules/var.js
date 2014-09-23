@@ -9,12 +9,19 @@ Can be bound to text node data or attribute
     module.exports = function(tag, node, attr, model, options) {
       var react, target, change;
 
+      function get() {
+        var val = model(tag);
+        return (typeof val === 'function') ?
+          JSON.stringify(val.values) :
+          val;
+      }
+
       if (tag.match(require('../consts').RE_IDENTIFIER)) {
 
         if (attr) {
           // Attribute
           change = function() {
-            var val = model(tag);
+            var val = get();
             return val ?
               node.setAttribute(attr, val) :
               node.removeAttribute(attr);
@@ -24,7 +31,7 @@ Can be bound to text node data or attribute
           // Text node
           target = document.createTextNode('');
           change = function() {
-            target.data = model(tag) || '';
+            target.data = get() || '';
           };
         }
 

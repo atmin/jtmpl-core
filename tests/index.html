@@ -82,6 +82,24 @@
     </ul>
 
 
+    <h4><code>model('sumNumbers')</code> = {{sumNumbers}}</h4>
+
+
+    <h4><code>model('evenNumbers')</code> in a list</h4>
+    <ul>
+    {{#evenNumbers}}
+      <li>{{.}}</li>
+    {{/}}
+    {{^evenNumbers}}
+      <li>&lt;no even numbers&gt;</li>
+    {{/}}
+    </ul>
+
+
+    <h4><code>model('evenNumbers')</code> var output</h4>
+    <div>{{evenNumbers}}</div>
+
+
     <h4><code>model('table')</code></h4>
     <table>
       <tbody>
@@ -173,6 +191,16 @@
       innerHTML: 'Try <code>jtmpl("#target")("innerHTML", "&lt;p&gt;new content&lt;/p&gt;")</code> on the console to replace me.',
       condition: true,
       numbers: [1, 2, 3],
+      sumNumbers: function() {
+        return this('numbers').values.reduce(function(prev, curr) {
+          return prev + curr;
+        }, 0);
+      },
+      evenNumbers: function() {
+        return this('numbers').values.filter(function(el) {
+          return el % 2 === 0;
+        });
+      },
       table: [
         [1, 2, 3],
         [4, 5, 6],

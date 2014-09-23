@@ -16,8 +16,12 @@ Evaluate object from literal or CommonJS module
 
       function mixin(target, properties) {
         for (var prop in properties) {
-          if (prop.indexOf('__') === 0 &&
-              prop.lastIndexOf('__') === prop.length - 2) {
+          if (// Plugin
+              (prop.indexOf('__') === 0 &&
+                prop.lastIndexOf('__') === prop.length - 2) ||
+              // Computed property
+              typeof properties[prop] === 'function'
+             ) {
             if (target.values[prop] === undefined) {
               target.values[prop] = properties[prop];
             }
