@@ -6,12 +6,16 @@
   <script src="blanket.min.js"></script>
   <script src="../jtmpl-core.js" data-cover></script>
   <style>
-    .some-class {
+    .red-class {
       color:red;
       -webkit-transition:color 0.5s ease-in;
       -moz-transition:color 0.5s ease-in;
       -o-transition:color 0.5s ease-in;
       transition:color 0.5s ease-in;
+    }
+
+    .bordered-class {
+      border: 1px dotted #999;
     }
 
     h1, h2, h3, h4 {
@@ -137,9 +141,9 @@
         <code>model('condition')</code>
       </label>
     </p>
-    <p class="{{#condition}}some-class{{/}}">Lorem ipsum ...</p>
+    <p class="{{#condition}}red-class{{/}} {{#condition}}bordered-class{{/}}">Lorem ipsum ...</p>
     {{#condition}}
-      <p>The above paragraph has .some-class</p>
+      <p>The above paragraph has .red-class and .bordered-class</p>
     {{/condition}}
     {{^condition}}
       <p>Inverted section</p>
@@ -159,9 +163,7 @@
 
     <h4><code>model('dynamicPartial')</code></h4>
     <div>
-    {{#externalPartial}}
       {{>dynamicPartial}}
-    {{/}}
     </div>
   </script>
 
@@ -237,8 +239,8 @@
       ],
       externalPartial: {
         extended: 'extended property',
-        dynamicPartial: 'partials.html#a-partial'
-      }
+      },
+      dynamicPartial: 'partials.html#partial2'
     }
   </script>
 
@@ -314,8 +316,8 @@
         ),
 
         ok(
-          document.querySelectorAll('.some-class').length === 1,
-          'it renders class="{{#condition}}some-class{{/}}"'
+          document.querySelectorAll('.red-class').length === 1,
+          'it renders class="{{#condition}}red-class{{/}}"'
         );
 
       });

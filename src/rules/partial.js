@@ -1,6 +1,6 @@
 /*
 
-### Partial 
+### Partial
 
 * {{>"#id"}}
 * {{>"url"}}
@@ -15,11 +15,15 @@ Replaces parent tag contents, always wrap in a tag
       var consts = require('../consts');
       var match = tag.match(consts.RE_PARTIAL);
       var anchor = document.createComment('');
+      var target;
 
       var loader = match &&
         function() {
+          if (!target) {
+            target = anchor.parentNode;
+          }
           require('../loader')(
-            anchor.parentNode,
+            target,
             match[1] ?
               // Variable
               model(match[1]) :

@@ -101,7 +101,8 @@ Return documentFragment
 
       // Variables
 
-      var i, children, len, ai, alen, attr, val, ruleVal, buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
+      var i, children, len, ai, alen, attr, val, attrRules, ri, attrVal;
+      var buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
       var fragment = document.createDocumentFragment();
       var freak = require('freak');
 
@@ -152,6 +153,8 @@ Return documentFragment
             for (ai = 0, alen = el.attributes.length; ai < alen; ai++) {
 
               attr = el.attributes[ai];
+              attrRules = [];
+              attrVal = '';
               val = attr.value;
               t = tokenizer(options, 'g');
 
@@ -160,6 +163,8 @@ Return documentFragment
                 rule = matchRules(match[0], el, attr.name, model, options);
 
                 if (rule) {
+
+                  attrRules.push(rule);
 
                   if (rule.block) {
 
@@ -178,24 +183,31 @@ Return documentFragment
                     }
                     else {
                       // Replace full block tag body with rule contents
-                      attr.value =
-                        attr.value.slice(0, beginPos) +
+                      attrVal +=
+                        val.slice(0, beginPos) +
                         rule.replace(attr.value.slice(bodyBeginPos, match.index)) +
-                        attr.value.slice(match.index + match[0].length);
+                        val.slice(match.index + match[0].length);
                     }
                   }
 
-                  if (rule.replace !== undefined) {
+                  if (!rule.block && rule.replace !== undefined) {
                     attr.value = rule.replace;
                   }
 
-                  if (rule.change) {
-                    model.on('change', rule.block || rule.prop, rule.change);
-                    rule.change();
-                  }
-
                 }
+              }
 
+              // Rule changes can mutate attributes,
+              // so process in another pass
+              if (attrRules.length) {
+                attr.value = attrVal;
+              }
+              for (ri = 0; ri < attrRules.length; ri++) {
+                rule = attrRules[ri];
+                if (rule.change) {
+                  model.on('change', rule.block || rule.prop, rule.change);
+                  rule.change();
+                }
               }
 
             }
