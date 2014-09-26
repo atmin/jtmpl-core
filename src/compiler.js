@@ -103,7 +103,7 @@ Return documentFragment
 
       var i, children, len, ai, alen, attr, val, attrRules, ri, attrVal;
       var buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
-      var fragment = document.createDocumentFragment();
+      var fragment = document.createDocumentFragment(), frag;
       var freak = require('freak');
 
       // Init
@@ -147,10 +147,10 @@ Return documentFragment
           case 1:
 
             // Remember model
-            el.__jtmpl__ = model;
+            fragment.__jtmpl__ = model;
 
             // Check attributes
-            for (ai = 0, alen = el.attributes.length; ai < alen; ai++) {
+            for (ai = 0, alen = el.attributes ? el.attributes.length : 0; ai < alen; ai++) {
 
               attr = el.attributes[ai];
               attrRules = [];
@@ -213,7 +213,10 @@ Return documentFragment
             }
 
             // Recursively compile
-            el.appendChild(compile(node, model, options));
+            frag = compile(node, model, options);
+            if (frag.childNodes.length) {
+                el.appendChild(frag);
+            }
 
             break;
 
