@@ -121,7 +121,7 @@ Return documentFragment
             freak({'.': model});
 
       // Template can be a string or DOM structure
-      if (template instanceof Node) {
+      if (template.nodeType) {
         body = template;
       }
       else {
@@ -141,7 +141,7 @@ Return documentFragment
 
         fragment.appendChild(el);
 
-        switch (el.nodeType) {
+        switch (node.nodeType) {
 
           // Element node
           case 1:
@@ -229,7 +229,7 @@ Return documentFragment
               if (rule) {
 
                 // DOM replacement?
-                if (rule.replace instanceof Node) {
+                if (rule.replace.nodeType) {
                   el.parentNode.replaceChild(rule.replace, el);
                 }
 

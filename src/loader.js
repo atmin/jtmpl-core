@@ -56,8 +56,9 @@ Evaluate object from literal or CommonJS module
           // Literal
           eval('(function(){ var result=' + body + '; return result})()' + src) :
           // CommonJS module
+          // "0," is black magic for IE8, check http://stackoverflow.com/a/7202038
           eval(
-            '(function(module, exports){' +
+            '0, (function(module, exports){' +
             body +
             ';return module.exports})' +
             src

@@ -22,12 +22,11 @@
 
       // jtmpl(target, template, model[, options])?
       else if (
-        ( args[0] instanceof Node ||
+        ( args[0] && args[0].nodeType ||
           (typeof args[0] === 'string')
         ) &&
 
-        ( args[1] instanceof Node ||
-          args[1] instanceof DocumentFragment ||
+        ( (args[1] && typeof args[1].appendChild === 'function') ||
           (typeof args[1] === 'string')
         ) &&
 
@@ -35,7 +34,7 @@
 
       ) {
 
-        target = args[0] instanceof Node ?
+        target = args[0] && args[0].nodeType  ?
           args[0] :
           document.querySelector(args[0]);
 
@@ -88,7 +87,7 @@ On page ready, process jtmpl targets
 
 */
 
-    document.addEventListener('DOMContentLoaded', function() {
+    require('./content-loaded')(window, function() {
 
       var loader = require('./loader');
       var targets = document.querySelectorAll('[data-jtmpl]');
