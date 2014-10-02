@@ -141,12 +141,12 @@
         <code>model('condition')</code>
       </label>
     </p>
-    <p class="{{#condition}}red-class{{/}} {{#condition}}bordered-class{{/}}">Lorem ipsum ...</p>
+    <p class="{{#condition}}red-class{{/}} {{^condition}}bordered-class{{/}}">Lorem ipsum ...</p>
     {{#condition}}
-      <p>The above paragraph has .red-class and .bordered-class</p>
+     <p>The above paragraph has .red-class and NOT .bordered-class</p>
     {{/condition}}
     {{^condition}}
-      <p>Inverted section</p>
+      <p>Inverted section. The above paragraph has .bordered-class</p>
     {{/}}
 
 

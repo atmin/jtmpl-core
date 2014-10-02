@@ -50,7 +50,7 @@ Can be bound to text node
       }
 
 
-      if (match) {
+      if (match && !attr) {
 
         return {
           prop: prop,
