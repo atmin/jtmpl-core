@@ -33,9 +33,6 @@
 
             switch (element.nodeType) {
                 case 1:
-                    return document.createTextNode(element.data);
-
-                case 3:
                     xElement.innerHTML = element.outerHTML;
 
                     if (!deep) {
@@ -43,6 +40,9 @@
                     }
 
                     return xElement.removeChild(xElement.firstChild);
+
+                case 3:
+                    return document.createTextNode(element.data);
 
                 case 8:
                     return document.createComment(element.data);

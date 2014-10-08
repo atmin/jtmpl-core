@@ -52,16 +52,19 @@ Evaluate object from literal or CommonJS module
           '\n//@ sourceURL=' + src +
           '\n//# sourceURL=' + src :
           '';
-        return (body.match(/^\s*{[\S\s]*}\s*$/)) ?
+        if (body.match(/^\s*{[\S\s]*}\s*$/)) {
           // Literal
-          eval('(function(){ var result=' + body + ';return result})()' + src) :
-          // CommonJS module
-          eval(
-            '(function(module, exports){' +
-            body +
-            ';return module.exports})' +
-            src
-          )(module, module.exports);
+          return eval('(function(){ var result=' + body + ';return result})()' + src);
+        }
+        // CommonJS module
+        eval(body + src);
+        return module.exports;
+          //eval(
+            //'(function(module, exports){' +
+            //body +
+            //';return module.exports})' +
+            //src
+          //)(module, module.exports);
       }
 
       function loadModel(src, template, doc) {

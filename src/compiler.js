@@ -103,7 +103,7 @@ Return documentFragment
 
       var i, children, len, ai, alen, attr, val, attrRules, ri, attrVal;
       var buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
-      var fragment = document.createDocumentFragment();
+      var fragment = document.createDocumentFragment(), frag;
       var freak = require('freak');
       var iframe;
 
@@ -130,8 +130,8 @@ Return documentFragment
         iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
-        iframe.contentDocument.writeln('<html><body>' + template + '</body></html>');
-        body = iframe.contentDocument.body;
+        iframe.contentDocument.writeln('<!doctype html>\n<html><body><div>' + template + '</div></body></html>');
+        body = iframe.contentDocument.body.children[0];
         document.body.removeChild(iframe);
         //body = document.createElement('body');
         //body.innerHTML = template;
@@ -219,7 +219,10 @@ Return documentFragment
             }
 
             // Recursively compile
-            el.appendChild(compile(node, model, options));
+            frag = compile(node, model, options);
+            if (frag.childNodes.length) {
+              el.appendChild(frag);
+            }
 
             break;
 
