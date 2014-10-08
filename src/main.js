@@ -90,6 +90,13 @@ On page ready, process jtmpl targets
 
     document.addEventListener('DOMContentLoaded', function() {
 
+      // Create hidden iframe, used to parse HTML from a string
+      // (IE8 ignores comments on setting innerHTML)
+      var iframe = document.createElement('iframe');
+      iframe.id = 'jtmpl-html-parser';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
       var loader = require('./loader');
       var targets = document.querySelectorAll('[data-jtmpl]');
 

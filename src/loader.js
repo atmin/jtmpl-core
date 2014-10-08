@@ -54,7 +54,7 @@ Evaluate object from literal or CommonJS module
           '';
         return (body.match(/^\s*{[\S\s]*}\s*$/)) ?
           // Literal
-          eval('(function(){ var result=' + body + '; return result})()' + src) :
+          eval('(function(){ var result=' + body + ';return result})()' + src) :
           // CommonJS module
           eval(
             '(function(module, exports){' +
@@ -65,6 +65,7 @@ Evaluate object from literal or CommonJS module
       }
 
       function loadModel(src, template, doc) {
+        var hashIndex;
         if (!src) {
           // No source
           jtmpl(target, template, model);
@@ -77,8 +78,9 @@ Evaluate object from literal or CommonJS module
           jtmpl(target, template, model);
         }
         else {
+          hashIndex = src.indexOf('#');
           // Get model via XHR
-          jtmpl('GET', src, function (resp) {
+          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src, function (resp) {
             var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
             var element = match && new DOMParser()
               .parseFromString(resp, 'text/html')
@@ -91,6 +93,8 @@ Evaluate object from literal or CommonJS module
       }
 
       function loadTemplate() {
+        var hashIndex;
+
         if (!src) return;
 
         if (src.match(consts.RE_NODE_ID)) {
@@ -100,8 +104,9 @@ Evaluate object from literal or CommonJS module
           loadModel(element.getAttribute('data-model'), element.innerHTML, document);
         }
         else {
+          hashIndex = src.indexOf('#');
           // Get template via XHR
-          jtmpl('GET', src, function(resp) {
+          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src, function(resp) {
             var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
             var doc;
             if (match) {

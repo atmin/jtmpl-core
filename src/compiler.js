@@ -105,6 +105,7 @@ Return documentFragment
       var buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
       var fragment = document.createDocumentFragment();
       var freak = require('freak');
+      var iframe;
 
       // Init
 
@@ -121,14 +122,19 @@ Return documentFragment
             freak({'.': model});
 
       // Template can be a string or DOM structure
-      if (template instanceof Node) {
+      if (template.nodeType) {
         body = template;
       }
       else {
         template = preprocess(template, options);
-
-        body = document.createElement('body');
-        body.innerHTML = template;
+        iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.writeln('<html><body>' + template + '</body></html>');
+        body = iframe.contentDocument.body;
+        document.body.removeChild(iframe);
+        //body = document.createElement('body');
+        //body.innerHTML = template;
       }
 
       // Iterate child nodes.
@@ -160,7 +166,7 @@ Return documentFragment
 
               while ( (match = t.exec(val)) ) {
 
-                rule = matchRules(match[0], el, attr.name, model, options);
+                rule = matchRules(match[0], el, attr.name.toLowerCase(), model, options);
 
                 if (rule) {
 
@@ -229,7 +235,7 @@ Return documentFragment
               if (rule) {
 
                 // DOM replacement?
-                if (rule.replace instanceof Node) {
+                if (rule.replace.nodeType) {
                   el.parentNode.replaceChild(rule.replace, el);
                 }
 

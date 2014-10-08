@@ -6,6 +6,33 @@ Handle "value", "checked" and "selected" attributes
 
 */
 
+    function triggerEvent(el, eventName){
+      var event;
+      if (document.createEvent){
+        event = document.createEvent('HTMLEvents');
+        event.initEvent(eventName,true,true);
+      }
+      else if(document.createEventObject){
+        // IE < 9
+        event = document.createEventObject();
+        event.eventType = eventName;
+      }
+      event.eventName = eventName;
+      if (el.dispatchEvent){
+        el.dispatchEvent(event);
+      }
+      else if (el.fireEvent && htmlEvents['on' + eventName]) {
+        // IE < 9
+        el.fireEvent('on' + event.eventType, event);
+      }
+      else if (el[eventName]) {
+        el[eventName]();
+      }
+      else if (el['on' + eventName]) {
+        el['on' + eventName]();
+      }
+    }
+
     module.exports = function(tag, node, attr, model, options) {
       var match = tag.match(require('../consts').RE_IDENTIFIER);
       var prop = match && match[0];
@@ -43,7 +70,7 @@ Handle "value", "checked" and "selected" attributes
                   i++
                 ) {
                 if (inputs[i] !== node) {
-                  inputs[i].dispatchEvent(new Event('change'));
+                  triggerEvent(inputs[i], 'change');
                 }
               }
             }
