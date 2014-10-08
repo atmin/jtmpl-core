@@ -94,7 +94,7 @@ Return documentFragment
           )
         );
         return match ?
-          block === '' || match[1] === undefined || match[1] === block :
+          block === '' || !match[1] || match[1] === block :
           false;
       }
 

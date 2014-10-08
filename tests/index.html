@@ -2,8 +2,9 @@
 
 <head>
   <link rel="stylesheet" href="qunit.css">
+  <script src="//cdn.polyfill.io/v1/polyfill.js"></script>
   <script src="qunit.js"></script>
-  <script src="blanket.min.js"></script>
+  <!--<script src="blanket.min.js"></script>-->
   <script src="../jtmpl-core.js" data-cover></script>
   <style>
     .red-class {
@@ -22,6 +23,34 @@
       margin-top: 4em;
     }
   </style>
+    <!--[if IE 8]>
+    <script>
+    Object.defineProperty(Element.prototype, 'cloneNode', {
+        value: function (deep) {
+            var
+            element = this,
+            xElement = this.document.createElement('x');
+
+            switch (element.nodeType) {
+                case 1:
+                    return document.createTextNode(element.data);
+
+                case 3:
+                    xElement.innerHTML = element.outerHTML;
+
+                    if (!deep) {
+                        xElement.firstChild.innerHTML = '';
+                    }
+
+                    return xElement.removeChild(xElement.firstChild);
+
+                case 8:
+                    return document.createComment(element.data);
+            }
+        }
+    });
+  </script>
+  <![endif]-->
 </head>
 
 

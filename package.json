@@ -25,9 +25,9 @@
     "jshint": "jshint src/*.js",
     "browserify": "browserify --standalone jtmpl src/main.js > jtmpl-core.js",
     "watch": "watchify --standalone jtmpl src/main.js -o jtmpl-core.js -dv",
-    "uglify": "uglifyjs jtmpl-core.js -c -m --screw-ie8 -o jtmpl-core.min.js",
+    "uglify": "uglifyjs jtmpl-core.js -c -m -o jtmpl-core.min.js",
     "start": "npm run dev",
-    "dev": "simple-server & (sleep 1 && xdg-open http://localhost:3000/tests/index.html) && npm run watch",
+    "dev": "simple-server 0.0.0.0:3000 & (sleep 1 && xdg-open http://localhost:3000/tests/index.html) && npm run watch",
     "build": "npm run jshint && npm run browserify && npm run uglify",
     "test": "npm run build && phantomjs tests/phantom.js"
   }
