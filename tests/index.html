@@ -2,7 +2,6 @@
 
 <head>
   <link rel="stylesheet" href="qunit.css">
-  <script src="//cdn.polyfill.io/v1/polyfill.js"></script>
   <script src="qunit.js"></script>
   <!--<script src="blanket.min.js"></script>-->
   <script src="../jtmpl-core.js" data-cover></script>
@@ -24,31 +23,35 @@
     }
   </style>
     <!--[if IE 8]>
+    <script src="//cdn.polyfill.io/v1/polyfill.js?features=modernizr:es5array,Object.getOwnPropertyNames,String.prototype.trim,Window.prototype.Event.ie8,Window.prototype.Event.ie8.DOMContentLoaded"></script>
     <script>
-    Object.defineProperty(Element.prototype, 'cloneNode', {
-        value: function (deep) {
-            var
-            element = this,
-            xElement = this.document.createElement('x');
+    (function (origCloneNode) {
+        Object.defineProperty(Element.prototype, 'cloneNode', {
 
-            switch (element.nodeType) {
-                case 1:
-                    xElement.innerHTML = element.outerHTML;
+            value: function (deep) {
+                switch (this.nodeType) {
+                    case 1:
+                        var i, len, child;
+                        var clone = origCloneNode.call(this, false);
 
-                    if (!deep) {
-                        xElement.firstChild.innerHTML = '';
-                    }
+                        if (deep) {
+                            for (i = 0, len = this.childNodes.length; i < len; i++) {
+                                child = this.childNodes[i];
+                                clone.appendChild(child.cloneNode(true));
+                            }
+                        }
 
-                    return xElement.removeChild(xElement.firstChild);
+                        return clone;
 
-                case 3:
-                    return document.createTextNode(element.data);
+                    case 3:
+                        return document.createTextNode(this.data);
 
-                case 8:
-                    return document.createComment(element.data);
+                    case 8:
+                        return document.createComment(this.data);
+                }
             }
-        }
-    });
+        });
+    })(Element.prototype.cloneNode);
   </script>
   <![endif]-->
 </head>
@@ -57,6 +60,14 @@
 <body>
 
   <div style="margin:4px; padding:1em; background:#fff; min-height:100%; box-sizing:border-box">
+
+    <div>
+        <select>
+          {{#kur}}
+          <option>1</option>
+          {{/}}
+        </select>
+    </div>
 
     <div id="target" data-jtmpl="#app"></div>
 

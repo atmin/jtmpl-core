@@ -20,7 +20,7 @@ Return documentFragment
       // Utility functions
 
       function escapeRE(s) {
-        return  (s + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+        return (s + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
       }
 
 
@@ -64,13 +64,18 @@ Return documentFragment
           ),
           options.delimiters[0] + '&$1' + options.delimiters[1]
         );
-        // wrap each non-attribute tag in HTML comment,
-        // remove Mustache comments,
+        // 1. wrap each non-attribute tag
+        // (that's not inside <select> (fuck you, IE)) in HTML comment
+        // 2. remove Mustache comments
         template = template.replace(
           tokenizer(options, 'g'),
           function(match, match1, pos) {
             var head = template.slice(0, pos);
             var insideTag = !!head.match(RegExp('<' + consts.RE_SRC_IDENTIFIER + '[^>]*?$'));
+            var opening = head.match(/<(select|SELECT)/g);
+            var closing = head.match(/<\/(select|SELECT)/g);
+            var insideSelect =
+                (opening && opening.length || 0) > (closing && closing.length || 0);
             var insideComment = !!head.match(/<!--\s*$/);
             var isMustacheComment = match1.indexOf('!') === 0;
 
@@ -78,7 +83,9 @@ Return documentFragment
               isMustacheComment ?
                 '' :
                 match :
-              '<!--' + match + '-->';
+              insideSelect ?
+                match :
+                '<!--' + match + '-->';
           }
         );
         return template;
@@ -102,7 +109,7 @@ Return documentFragment
       // Variables
 
       var i, children, len, ai, alen, attr, val, attrRules, ri, attrVal;
-      var buffer, pos, beginPos, bodyBeginPos, body, node, el, t, match, rule, token, block;
+      var buffer, pos, beginPos, bodyBeginPos, body, node, el, contents, t, match, rule, token, block;
       var fragment = document.createDocumentFragment(), frag;
       var freak = require('freak');
       var iframe;
@@ -130,11 +137,9 @@ Return documentFragment
         iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
-        iframe.contentDocument.writeln('<!doctype html>\n<html><body><div>' + template + '</div></body></html>');
-        body = iframe.contentDocument.body.children[0];
+        iframe.contentDocument.writeln('<!doctype html>\n<html><body>' + template + '</body></html>');
+        body = iframe.contentDocument.body;
         document.body.removeChild(iframe);
-        //body = document.createElement('body');
-        //body.innerHTML = template;
       }
 
       // Iterate child nodes.
@@ -226,15 +231,19 @@ Return documentFragment
 
             break;
 
+          // Text node
+          case 3:
           // Comment node
           case 8:
-            if (matchEndBlock('', el.data, options)) {
-              throw 'jtmpl: Unexpected ' + el.data;
+            contents = el.data.trim();
+
+            if (matchEndBlock('', contents, options)) {
+              throw 'jtmpl: Unexpected ' + contents;
             }
 
-            if ( (match = el.data.match(tokenizer(options))) ) {
+            if ( (match = contents.match(tokenizer(options))) ) {
 
-              rule = matchRules(el.data, node, null, model, options);
+              rule = matchRules(contents, node, null, model, options);
               if (rule) {
 
                 // DOM replacement?
@@ -258,7 +267,7 @@ Return documentFragment
                   }
 
                   if (i === len) {
-                    throw 'jtmpl: Unclosed ' + el.data;
+                    throw 'jtmpl: Unclosed ' + contents;
                   }
                   else {
                     // Replace `el` with `rule.replace()` result

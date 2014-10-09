@@ -54,17 +54,11 @@ Evaluate object from literal or CommonJS module
           '';
         if (body.match(/^\s*{[\S\s]*}\s*$/)) {
           // Literal
-          return eval('(function(){ var result=' + body + ';return result})()' + src);
+          return eval('result=' + body + src);
         }
         // CommonJS module
         eval(body + src);
         return module.exports;
-          //eval(
-            //'(function(module, exports){' +
-            //body +
-            //';return module.exports})' +
-            //src
-          //)(module, module.exports);
       }
 
       function loadModel(src, template, doc) {
@@ -83,15 +77,18 @@ Evaluate object from literal or CommonJS module
         else {
           hashIndex = src.indexOf('#');
           // Get model via XHR
-          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src, function (resp) {
-            var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
-            var element = match && new DOMParser()
-              .parseFromString(resp, 'text/html')
-              .querySelector(match[1]);
-            mixin(model, evalObject(match ? element.innerHTML : resp, src));
-            applyPlugins();
-            jtmpl(target, template, model);
-          });
+          // Older IEs complain if URL contains hash
+          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src,
+            function (resp) {
+              var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
+              var element = match && new DOMParser()
+                .parseFromString(resp, 'text/html')
+                .querySelector(match[1]);
+              mixin(model, evalObject(match ? element.innerHTML : resp, src));
+              applyPlugins();
+              jtmpl(target, template, model);
+            }
+          );
         }
       }
 
@@ -109,24 +106,30 @@ Evaluate object from literal or CommonJS module
         else {
           hashIndex = src.indexOf('#');
           // Get template via XHR
-          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src, function(resp) {
-            var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
-            var doc;
-            if (match) {
-              doc = document.implementation.createHTMLDocument('');
-              doc.documentElement.innerHTML = resp;
-            }
-            else {
-              doc = document;
-            }
-            var element = match && doc.querySelector(match[1]);
+          jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src,
+            function(resp) {
+              var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
+              var iframe, doc;
+              if (match) {
+                iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                doc = iframe.contentDocument;
+                doc.writeln(resp);
+                document.body.removeChild(iframe);
+              }
+              else {
+                doc = document;
+              }
+              var element = match && doc.querySelector(match[1]);
 
-            loadModel(
-              match ? element.getAttribute('data-model') : '',
-              match ? element.innerHTML : resp,
-              doc
-            );
-          });
+              loadModel(
+                match ? element.getAttribute('data-model') : '',
+                match ? element.innerHTML : resp,
+                doc
+              );
+            }
+          );
         }
       }
 
