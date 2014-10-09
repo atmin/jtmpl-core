@@ -80,7 +80,7 @@ Handle "value", "checked" and "selected" attributes
 
         // text input?
         var eventType = ['text', 'password'].indexOf(node.type) > -1 ?
-          'input' : 'change';
+          'keyup' : 'change'; // IE9 incorectly reports it supports input event
 
         node.addEventListener(eventType, function() {
           model(prop, node[attr]);

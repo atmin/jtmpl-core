@@ -88,6 +88,16 @@ Return documentFragment
                 '<!--' + match + '-->';
           }
         );
+        // prefix 'selected' and 'checked' attributes with 'jtmpl-'
+        // (to avoid "special" processing, oh IE8)
+        template = template.replace(
+          /(<(?:option|OPTION)[^>]*?)(?:selected|SELECTED)=/g,
+          '$1jtmpl-selected=');
+
+        template = template.replace(
+          /(<(?:input|INPUT)[^>]*?)(?:checked|CHECKED)=/g,
+          '$1jtmpl-checked=');
+
         return template;
       }
 
@@ -108,7 +118,7 @@ Return documentFragment
 
       // Variables
 
-      var i, children, len, ai, alen, attr, val, attrRules, ri, attrVal;
+      var i, children, len, ai, alen, attr, val, attrRules, ri, attrName, attrVal;
       var buffer, pos, beginPos, bodyBeginPos, body, node, el, contents, t, match, rule, token, block;
       var fragment = document.createDocumentFragment(), frag;
       var freak = require('freak');
@@ -165,13 +175,16 @@ Return documentFragment
 
               attr = el.attributes[ai];
               attrRules = [];
+              // Unprefix 'jtmpl-' from attribute name, if needed
+              attrName = attr.name.lastIndexOf('jtmpl-', 0) === 0 ?
+                attr.name.slice('jtmpl-'.length) : attr.name;
               attrVal = '';
               val = attr.value;
               t = tokenizer(options, 'g');
 
               while ( (match = t.exec(val)) ) {
 
-                rule = matchRules(match[0], el, attr.name.toLowerCase(), model, options);
+                rule = matchRules(match[0], el, attrName.toLowerCase(), model, options);
 
                 if (rule) {
 
@@ -208,11 +221,11 @@ Return documentFragment
                 }
               }
 
-              // Rule changes can mutate attributes,
-              // so process in another pass
-              if (attrRules.length) {
-                attr.value = attrVal;
-              }
+              // Set new attribute value
+              attrVal = attrVal || attr.value;
+              el.setAttribute(attrName, attrVal);
+
+              // Attach attribute listeners and trigger initial change
               for (ri = 0; ri < attrRules.length; ri++) {
                 rule = attrRules[ri];
                 if (rule.change) {
@@ -221,6 +234,20 @@ Return documentFragment
                 }
               }
 
+            }
+
+            // Clear 'jtmpl-'-prefixed attributes
+            ai = 0;
+            while (ai < el.attributes.length) {
+              attr = el.attributes[ai];
+              if (attr.name.lastIndexOf('jtmpl-', 0) === 0) {
+                el.removeAttribute(attr.name);
+              }
+              else {
+                ai++;
+              }
+            }
+            for (ai = 0, alen = el.attributes.length; ai < alen; ai++) {
             }
 
             // Recursively compile

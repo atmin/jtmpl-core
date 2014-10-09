@@ -49,4 +49,4 @@ module.exports = function contentLoaded(win, fn) {
 		win[add](pre + 'load', init, false);
 	}
 
-}
+};
