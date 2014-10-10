@@ -54,7 +54,10 @@ Handle "checked" attribute
         return {
           prop: prop,
           replace: '',
-          change: change
+          change: change,
+          asyncInit: function() {
+            model.trigger('change', prop);
+          }
         };
       }
     }

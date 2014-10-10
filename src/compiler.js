@@ -218,12 +218,16 @@ Return documentFragment
                     attr.value = rule.replace;
                   }
 
+                  if (rule.asyncInit) {
+                    setTimeout(rule.asyncInit, 0);
+                  }
+
                 }
               }
 
               // Set new attribute value
-              attrVal = attrVal || attr.value;
-              el.setAttribute(attrName, attrVal);
+              //attrVal = attrVal || attr.value;
+              //el.setAttribute(attrName, attrVal);
 
               // Attach attribute listeners and trigger initial change
               for (ri = 0; ri < attrRules.length; ri++) {
@@ -246,8 +250,6 @@ Return documentFragment
               else {
                 ai++;
               }
-            }
-            for (ai = 0, alen = el.attributes.length; ai < alen; ai++) {
             }
 
             // Recursively compile

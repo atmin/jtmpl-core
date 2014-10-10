@@ -42,13 +42,13 @@ Requests API
             Object.keys(args[2]).map(
               function(x) {
                 return x + '=' + encodeURIComponent(args[2][x]);
-              } 
+              }
             ).join('&') :
 
             // No parameters
             '';
 
-      xhr.onload = function(event) {
+      var onload = function(event) {
         var resp;
 
         if (callback) {
@@ -62,10 +62,23 @@ Requests API
         }
       };
 
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            onload.call(this, 'done');
+          }
+          else {
+            console.log('jtmpl XHR error: ' + this.responseText);
+          }
+        }
+      };
+
       xhr.open(args[0], args[1],
-        (opts.async !== undefined ? opts.async : true), 
+        (opts.async !== undefined ? opts.async : true),
         opts.user, opts.password);
 
       xhr.send(request);
+
+      return xhr;
 
     };

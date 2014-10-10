@@ -10,6 +10,12 @@ Handle "selected" attribute
     var selectOptions = [];
     var selectOptionsContexts = [];
 
+    function updateOptions(i, prop) {
+      for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
+        selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
+      }
+    }
+
     module.exports = function(tag, node, attr, model, options) {
       var match = tag.match(require('../consts').RE_IDENTIFIER);
       var prop = match && match[0];
@@ -33,12 +39,11 @@ Handle "selected" attribute
               // Init options contexts
               selectOptionsContexts.push([]);
               // Attach change listener
-              node.parentNode.addEventListener('click', function() {
-                // Update options
-                for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
-                  selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
-                }
+              node.parentNode.addEventListener('change', function() {
+                updateOptions(i, prop);
               });
+              // Trigger initial update
+              //updateOptions(i, prop);
             }
             // Remember option and context
             selectOptions[i].push(node);
@@ -53,7 +58,10 @@ Handle "selected" attribute
         return {
           prop: prop,
           replace: '',
-          change: change
+          change: change,
+          asyncInit: function() {
+            model.trigger('change', prop);
+          }
         };
       }
     }
