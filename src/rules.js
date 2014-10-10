@@ -30,6 +30,8 @@ It must return either:
 
     module.exports = [
       require('./rules/value-var'),
+      require('./rules/checked-var'),
+      require('./rules/selected-var'),
       require('./rules/class-section'),
       require('./rules/section'),
       require('./rules/inverted-section'),

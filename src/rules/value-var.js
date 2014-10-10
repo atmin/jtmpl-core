@@ -1,37 +1,10 @@
 /*
 
-### (value | checked | selected)="{{val}}"
+### value="{{val}}"
 
-Handle "value", "checked" and "selected" attributes
+Handle "value" attribute
 
 */
-
-    function triggerEvent(el, eventName){
-      var event;
-      if (document.createEvent){
-        event = document.createEvent('HTMLEvents');
-        event.initEvent(eventName,true,true);
-      }
-      else if(document.createEventObject){
-        // IE < 9
-        event = document.createEventObject();
-        event.eventType = eventName;
-      }
-      event.eventName = eventName;
-      if (el.dispatchEvent){
-        el.dispatchEvent(event);
-      }
-      else if (el.fireEvent && htmlEvents['on' + eventName]) {
-        // IE < 9
-        el.fireEvent('on' + event.eventType, event);
-      }
-      else if (el[eventName]) {
-        el[eventName]();
-      }
-      else if (el['on' + eventName]) {
-        el['on' + eventName]();
-      }
-    }
 
     module.exports = function(tag, node, attr, model, options) {
       var match = tag.match(require('../consts').RE_IDENTIFIER);
@@ -44,40 +17,7 @@ Handle "value", "checked" and "selected" attributes
         }
       }
 
-      if (match && ['value', 'checked', 'selected'].indexOf(attr) > -1) {
-        // <select> option?
-        if (node.nodeName === 'OPTION') {
-          // Attach async, as parentNode is still documentFragment
-          setTimeout(function() {
-            if (node && node.parentNode) {
-              node.parentNode.addEventListener('change', function() {
-                if (model(prop) !== node.selected) {
-                  model(prop, node.selected);
-                }
-              });
-            }
-          }, 0);
-        }
-
-        // radio group?
-        if (node.type === 'radio' && node.name) {
-          node.addEventListener('change', function() {
-            if (node[attr]) {
-              for (var i = 0,
-                  inputs = document.querySelectorAll('input[type=radio][name=' + node.name + ']'),
-                  len = inputs.length;
-                  i < len;
-                  i++
-                ) {
-                if (inputs[i] !== node) {
-                  triggerEvent(inputs[i], 'change');
-                }
-              }
-            }
-            model(prop, node[attr]);
-          });
-        }
-
+      if (match && attr === 'value') {
         // text input?
         var eventType = ['text', 'password'].indexOf(node.type) > -1 ?
           'keyup' : 'change'; // IE9 incorectly reports it supports input event
