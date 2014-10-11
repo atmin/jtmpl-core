@@ -1550,9 +1550,11 @@ Handle "selected" attribute
               selectOptionsContexts.push([]);
               // Attach change listener
               node.parentNode.addEventListener('change', function() {
+                updating = true;
                 for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
                   selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
                 }
+                updating = false;
               });
             }
             // Remember option and context
