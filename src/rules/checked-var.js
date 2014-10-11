@@ -19,8 +19,15 @@ Handle "checked" attribute
         if (updating) {
           return;
         }
-        node[model(prop) ? 'setAttribute' : 'removeAttribute']
-          ('checked', '');
+        if (node.name) {
+          for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
+            radioGroups[node.name][0][i].checked = radioGroups[node.name][1][i](prop);
+          }
+        }
+        else {
+          node[model(prop) ? 'setAttribute' : 'removeAttribute']
+            ('checked', '');
+        }
       }
 
       if (match && attr === 'checked') {

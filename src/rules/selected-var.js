@@ -42,18 +42,12 @@ Handle "selected" attribute
               node.parentNode.addEventListener('change', function() {
                 updateOptions(i, prop);
               });
-              // Trigger initial update
-              //updateOptions(i, prop);
             }
             // Remember option and context
             selectOptions[i].push(node);
             selectOptionsContexts[i].push(model);
           }, 0);
         }
-
-        node.addEventListener('change', function() {
-          model(prop, node[attr]);
-        });
 
         return {
           prop: prop,
