@@ -1162,8 +1162,6 @@ Handle "checked" attribute
 */
 
     var radioGroups = {};
-    // Currently updating?
-    var updating = false;
 
 
     module.exports = function(tag, node, attr, model, options) {
@@ -1171,17 +1169,13 @@ Handle "checked" attribute
       var prop = match && match[0];
 
       function change() {
-        if (updating) {
-          return;
-        }
         if (node.name) {
           for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
             radioGroups[node.name][0][i].checked = radioGroups[node.name][1][i](prop);
           }
         }
         else {
-          node[model(prop) ? 'setAttribute' : 'removeAttribute']
-            ('checked', '');
+          node.checked = model(prop);
         }
       }
 
@@ -1199,7 +1193,6 @@ Handle "checked" attribute
         }
 
         node.addEventListener('click', function() {
-          updating = true;
           if (node.type === 'radio' && node.name) {
             // Update all inputs from the group
             for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
@@ -1210,7 +1203,6 @@ Handle "checked" attribute
             // Update current input only
             model(prop, node[attr]);
           }
-          updating = false;
         });
 
         return {
@@ -1521,20 +1513,26 @@ Handle "selected" attribute
     var selects = [];
     var selectOptions = [];
     var selectOptionsContexts = [];
-
-    function updateOptions(i, prop) {
-      for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
-        selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
-      }
-    }
+    // Currently updating? Initialized to true to avoid sync init
+    var updating = true;
 
     module.exports = function(tag, node, attr, model, options) {
       var match = tag.match(_dereq_('../consts').RE_IDENTIFIER);
       var prop = match && match[0];
 
       function change() {
-        node[model(prop) ? 'setAttribute' : 'removeAttribute']
-          ('selected', '');
+        if (updating) {
+          return;
+        }
+        if (node.nodeName === 'OPTION') {
+          var i = selects.indexOf(node.parentNode);
+          for (var j = 0, len = selectOptions[i].length; j < len; j++) {
+            selectOptions[i][j].selected = selectOptionsContexts[i][j](prop);
+          }
+        }
+        else {
+          node.selected = model(prop);
+        }
       }
 
       if (match && attr === 'selected') {
@@ -1552,7 +1550,9 @@ Handle "selected" attribute
               selectOptionsContexts.push([]);
               // Attach change listener
               node.parentNode.addEventListener('change', function() {
-                updateOptions(i, prop);
+                for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
+                  selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
+                }
               });
             }
             // Remember option and context
@@ -1560,12 +1560,18 @@ Handle "selected" attribute
             selectOptionsContexts[i].push(model);
           }, 0);
         }
+        else {
+          node.addEventListener('change', function() {
+            model(prop, this.selected);
+          });
+        }
 
         return {
           prop: prop,
           replace: '',
           change: change,
           asyncInit: function() {
+            updating = false;
             model.trigger('change', prop);
           }
         };

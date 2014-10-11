@@ -7,8 +7,6 @@ Handle "checked" attribute
 */
 
     var radioGroups = {};
-    // Currently updating?
-    var updating = false;
 
 
     module.exports = function(tag, node, attr, model, options) {
@@ -16,17 +14,13 @@ Handle "checked" attribute
       var prop = match && match[0];
 
       function change() {
-        if (updating) {
-          return;
-        }
         if (node.name) {
           for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
             radioGroups[node.name][0][i].checked = radioGroups[node.name][1][i](prop);
           }
         }
         else {
-          node[model(prop) ? 'setAttribute' : 'removeAttribute']
-            ('checked', '');
+          node.checked = model(prop);
         }
       }
 
@@ -44,7 +38,6 @@ Handle "checked" attribute
         }
 
         node.addEventListener('click', function() {
-          updating = true;
           if (node.type === 'radio' && node.name) {
             // Update all inputs from the group
             for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
@@ -55,7 +48,6 @@ Handle "checked" attribute
             // Update current input only
             model(prop, node[attr]);
           }
-          updating = false;
         });
 
         return {

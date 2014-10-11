@@ -148,6 +148,7 @@
     </table>
 
 
+
     <h4><code>model('options')</code></h4>
     <p>
       <select>
@@ -163,6 +164,29 @@
       {{#options}}
       <label><input type="radio" name="radio-group" checked={{checked}}>{{text}}</label>
       {{/options}}
+    </p>
+
+
+
+    <h4><code>model('options2')</code></h4>
+    <p>
+      <select multiple>
+        {{#options2}}
+        <option selected={{checked}}> {{text}}</option>
+        {{/}}
+      </select>
+    </p>
+
+
+
+    <h4><code>model('options2')</code></h4>
+    <p>
+      {{#options2}}
+      <label><input type="checkbox" checked={{checked}}> {{text}}</label>
+      {{/}}
+    </p>
+    <p>
+      <label><input type="checkbox" checked="{{checkAll}}"> <code>model('checkAll')</code> (computed getter/setter)</label>
     </p>
 
 
@@ -245,6 +269,28 @@
         { checked: false, text: 'two' },
         { checked: false, text: 'three' }
       ],
+      options2: [
+        { checked: true, text: 'one' },
+        { checked: false, text: 'two' },
+        { checked: true, text: 'three' },
+        { checked: false, text: 'four' }
+      ],
+      checkAll: function(newVal) {
+        if (typeof newVal === 'boolean') {
+          // Setter
+          // Iterate `options2`, set `checked` to newVal
+          this('options2').values.map(function(el, i) {
+            this('options2')(i)('checked', newVal);
+          }, this);
+        }
+        else {
+          // Getter (arguments[0] would be a function)
+          // Logical AND of all `options2.checked`
+          return this('options2').values.reduce(function(prev, curr) {
+            return prev && curr.checked;
+          }, true);
+        }
+      },
       tree: [
         {
           value: 1,
@@ -314,7 +360,12 @@
         ok(
           document.querySelector('#innerHTML').innerHTML.trim() ===
             'Try <code>jtmpl("#target")("innerHTML", "&lt;p&gt;new content&lt;/p&gt;")' +
-            '</code> on the console to replace me.<!---->',
+            '</code> on the console to replace me.<!---->'
+          || // IE is special...
+          document.querySelector('#innerHTML').innerHTML.trim() ===
+            'Try <CODE>jtmpl("#target")("innerHTML", "&lt;p&gt;new content&lt;/p&gt;")' +
+            '</CODE> on the console to replace me.<!---->',
+
           'it renders {{{innerHTML}}}'
         );
 
