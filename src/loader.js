@@ -11,7 +11,7 @@ Evaluate object from literal or CommonJS module
 
       model = model || {};
       if (typeof model !== 'function') {
-        model = jtmpl.freak(model);
+        model = jtmpl(model);
       }
 
       function mixin(target, properties) {

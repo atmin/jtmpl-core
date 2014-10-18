@@ -14,6 +14,12 @@
         return require('./xhr').apply(null, args);
       }
 
+      // jtmpl(object)?
+      else if (args.length === 1 && typeof args[0] === 'object') {
+        // return Freak instance
+        return require('freak')(args[0]);
+      }
+
       // jtmpl(target)?
       else if (args.length === 1 && typeof args[0] === 'string') {
         // return model
@@ -98,14 +104,14 @@ On page ready, process jtmpl targets
     });
 
 
+
 /*
 
-Expose freak
+Expose new-generation compiler for experimenting
 
 */
 
-    jtmpl.freak = require('freak');
-
+    jtmpl.compile2 = require('./compiler2');
 
 
 /*
