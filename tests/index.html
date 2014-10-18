@@ -219,7 +219,9 @@
 
     <h4><code>model('dynamicPartial')</code></h4>
     <div>
+    {{#context}}
       {{>dynamicPartial}}
+    {{/}}
     </div>
   </script>
 
@@ -317,6 +319,10 @@
       ],
       externalPartial: {
         extended: 'extended property',
+      },
+      context: {
+        own: 'host',
+        dynamicPartial: 'partials.html#partial2'
       },
       dynamicPartial: 'partials.html#partial2'
     }

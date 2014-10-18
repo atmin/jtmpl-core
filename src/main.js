@@ -117,7 +117,11 @@ Plugins
     jtmpl.plugins = {
       init: function(arg) {
         if (typeof arg === 'function') {
-          arg.call(this);
+          var that = this;
+          // Call async, after jtmpl has constructed the DOM
+          setTimeout(function() {
+            arg.call(that);
+          });
         }
       }
     };
