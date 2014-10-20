@@ -153,7 +153,7 @@ Return documentFragment
         body = template;
       }
       else {
-        console.log('compiler: IFRAME construction');
+        //console.log('compiler: IFRAME construction');
         template = preprocess(template, options);
         iframe = document.createElement('iframe');
         iframe.style.display = 'none';

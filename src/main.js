@@ -111,7 +111,7 @@ Expose new-generation compiler for experimenting
 
 */
 
-    jtmpl.compile2 = require('./compiler2');
+    jtmpl.compile2 = require('./compile');
 
 
 /*
