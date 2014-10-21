@@ -9,7 +9,7 @@ function compile(template) {
 
   // Compile rules, for attributes and nodes
   var compileRules = require('./compile-rules');
-  var match;
+  var match, block;
 
   // Generate dynamic function body
   var func = '(function(model) {' +
@@ -37,14 +37,42 @@ function compile(template) {
             // Rule found?
             if (match) {
 
+              // Block tag?
+              if (match.block) {
+
+                // Fetch block template
+                block = document.createDocumentFragment();
+                for (i++;
+                    (i < len) && !matchEndBlock(match.block, childNodes[i].innerHTML || '');
+                    i++) {
+                  block.appendChild(childNodes[i].cloneNode(true));
+                }
+
+                if (i === len) {
+                  throw 'jtmpl: Unclosed ' + match.block;
+                }
+                else {
+                  func += '(' + match.rule.toString() + ')' +
+                    '(frag, ' +
+                    JSON.stringify(match.block) +
+                    ', model, ' +
+                    JSON.stringify(compile(block)) + ');';
+                }
+
+              }
+              // Inline tag
+              else {
+                func += '(' + match.rule.toString() + ')' +
+                  '(frag, ' + JSON.stringify(match.prop) + ', model);';
+              }
+
               // Skip remaining rules
               break;
             }
-          }
+          } // end iterating node rules
 
-          // REMOVEMELATER
           if (!match) {
-            func += 'node = document.createTextNode("AAAAAAAAAA");';
+            func += 'node = document.createTextNode("REMOVEMELATER");';
             func += 'frag.appendChild(node);';
           }
         }
@@ -64,7 +92,7 @@ function compile(template) {
                }
 
           // Recursively compile
-          func += 'node.appendChild(' + compile(node, model) + '());';
+          func += 'node.appendChild(' + compile(node) + '());';
 
           // Append to fragment
           func += 'frag.appendChild(node);';
@@ -92,6 +120,16 @@ function compile(template) {
   func += 'return frag; })';
 
   return func;
+}
+
+
+
+
+function matchEndBlock(block, str) {
+  var match = str.match(/\/([\w\.\-]+)?/);
+  return match ?
+    block === '' || !match[1] || match[1] === block :
+    false;
 }
 
 
