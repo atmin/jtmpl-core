@@ -2,18 +2,19 @@
  * Compile a template, parsed by @see parse
  *
  * @param {documentFragment} template
+ * @param {string|undefined} sourceURL - include sourceURL to aid debugging
  *
  * @returns {string} - Function body, accepting Freak instance parameter, suitable for eval()
  */
-function compile(template) {
+function compile(template, sourceURL) {
 
   // Compile rules, for attributes and nodes
   var compileRules = require('./compile-rules');
   var match, block;
 
   // Generate dynamic function body
-  var func = '(function(model) {' +
-    'var frag = document.createDocumentFragment(), node;';
+  var func = '(function(model) {\n' +
+    'var frag = document.createDocumentFragment(), node;\n\n';
 
 
   // Iterate childNodes
@@ -63,7 +64,7 @@ function compile(template) {
               // Inline tag
               else {
                 func += '(' + match.rule.toString() + ')' +
-                  '(frag, ' + JSON.stringify(match.prop) + ', model);';
+                  '(frag, ' + JSON.stringify(match.prop) + ', model);\n';
               }
 
               // Skip remaining rules
@@ -71,15 +72,16 @@ function compile(template) {
             }
           } // end iterating node rules
 
+          // TODO: what to do with non-matching rules?
           if (!match) {
-            func += 'node = document.createTextNode("REMOVEMELATER");';
-            func += 'frag.appendChild(node);';
+            func += 'node = document.createTextNode("REMOVEMELATER");\n';
+            func += 'frag.appendChild(node);\n';
           }
         }
 
         else {
           // Create element
-          func += 'node = document.createElement("' + node.nodeName + '");';
+          func += 'node = document.createElement("' + node.nodeName + '");\n';
 
           // Clone attributes
           for (var ai = 0, attributes = node.attributes, alen = attributes.length;
@@ -88,14 +90,14 @@ function compile(template) {
                    attributes[ai].name +
                    '", ' +
                    JSON.stringify(attributes[ai].value) +
-                   ');';
+                   ');\n';
                }
 
           // Recursively compile
-          func += 'node.appendChild(' + compile(node) + '());';
+          func += 'node.appendChild(' + compile(node) + '());\n';
 
           // Append to fragment
-          func += 'frag.appendChild(node);';
+          func += 'frag.appendChild(node);\n';
         }
 
         break;
@@ -104,20 +106,23 @@ function compile(template) {
       // Text node
       case 3:
         func += 'frag.appendChild(document.createTextNode(' +
-          JSON.stringify(node.data) + '));';
+          JSON.stringify(node.data) + '));\n';
         break;
 
 
       // Comment node
       case 8:
         func += 'frag.appendChild(document.createComment(' +
-          JSON.stringify(node.data) + '));';
+          JSON.stringify(node.data) + '));\n';
         break;
 
     } // end switch
   } // end iterate childNodes
 
   func += 'return frag; })';
+  func += sourceURL ?
+    '\n//@ sourceURL=' + sourceURL + '\n//# sourceURL=' + sourceURL + '\n' :
+    '';
 
   return func;
 }
@@ -131,6 +136,7 @@ function matchEndBlock(block, str) {
     block === '' || !match[1] || match[1] === block :
     false;
 }
+
 
 
 
