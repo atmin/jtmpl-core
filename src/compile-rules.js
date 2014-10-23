@@ -8,6 +8,7 @@ jtmpl.get = function(model, prop) {
 };
 
 
+var RE_DELIMITED_VAR = /^\{\{([\w\.\-]+)\}\}$/;
 
 
 /**
@@ -23,10 +24,120 @@ module.exports = {
 
 
     /**
+     * value="{{var}}"
+     */
+    function(node, attr) {
+      var match = node.getAttribute(attr).match(RE_DELIMITED_VAR);
+      if (attr === 'value' && match) {
+
+        return {
+
+          prop: match[1],
+
+          rule: function(node, attr, model, prop) {
+
+            function change() {
+              var val = jtmpl.get(model, prop);
+              if (node[attr] !== val) {
+                node[attr] = val || '';
+              }
+            }
+
+            // text input?
+            var eventType = ['text', 'password'].indexOf(node.type) > -1 ?
+              'keyup' : 'change'; // IE9 incorectly reports it supports input event
+
+            node.addEventListener(eventType, function() {
+              model(prop, node[attr]);
+            });
+
+            model.on('change', prop, change);
+            change();
+
+          }
+        };
+      }
+    },
+
+
+
+
+    /**
      * selected="{{var}}"
      */
     function(node, attr) {
+      var match = node.getAttribute(attr).match(RE_DELIMITED_VAR);
+      if (attr === 'selected' && match) {
 
+        return {
+
+          prop: match[1],
+
+          rule: function(node, attr, model, prop) {
+
+            var selects = [];
+            var selectOptions = [];
+            var selectOptionsContexts = [];
+            // Currently updating? Initialized to true to avoid sync init
+            var updating = true;
+
+            function change() {
+              if (updating) {
+                return;
+              }
+              if (node.nodeName === 'OPTION') {
+                var i = selects.indexOf(node.parentNode);
+                for (var j = 0, len = selectOptions[i].length; j < len; j++) {
+                  selectOptions[i][j].selected = selectOptionsContexts[i][j](prop);
+                }
+              }
+              else {
+                node.selected = model(prop);
+              }
+            }
+
+            if (node.nodeName === 'OPTION') {
+
+              // Process async, as parentNode is still documentFragment
+              setTimeout(function() {
+                var i = selects.indexOf(node.parentNode);
+                if (i === -1) {
+                  // Add <select> to list
+                  i = selects.push(node.parentNode) - 1;
+                  // Init options
+                  selectOptions.push([]);
+                  // Init options contexts
+                  selectOptionsContexts.push([]);
+                  // Attach change listener
+                  node.parentNode.addEventListener('change', function() {
+                    updating = true;
+                    for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
+                      selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
+                    }
+                    updating = false;
+                  });
+                }
+                // Remember option and context
+                selectOptions[i].push(node);
+                selectOptionsContexts[i].push(model);
+              }, 0);
+
+            }
+            else {
+              node.addEventListener('change', function() {
+                model(prop, this.selected);
+              });
+            }
+
+
+            model.on('change', prop, change);
+            setTimeout(function() {
+              updating = false;
+              model.trigger('change', prop);
+            });
+          }
+        };
+      }
     },
 
 
@@ -66,7 +177,7 @@ module.exports = {
      * attribute="{{var}}"
      */
     function(node, attr) {
-      var match = node.getAttribute(attr).match(/^\{\{([\w\.\-]+)\}\}$/);
+      var match = node.getAttribute(attr).match(RE_DELIMITED_VAR);
       if (match) {
 
         return {
@@ -149,7 +260,7 @@ module.exports = {
      * {{#section}}
      */
     function(node) {
-      var match = node.innerHTML.match(/^#([\w\.\-])+$/);
+      var match = node.innerHTML.match(/^#([\w\.\-]+)$/);
 
       if (match) {
 

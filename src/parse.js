@@ -13,10 +13,11 @@ function parse(template) {
   function preprocess(template) {
 
     // replace {{{tag}}} with {{&tag}}
-    template = template.replace(/\{\{\{([\S\s]*?)\}\}\}/, '{{&$1}}');
+    template = template.replace(/\{\{\{([\S\s]*?)\}\}\}/g, '{{&$1}}');
 
     // 1. wrap each non-attribute tag in <script type="text/jtmpl-tag">
     // 2. remove Mustache comments
+    // TODO: handle tags in HTML comments
     template = template.replace(
       /\{\{([\S\s]*?)\}\}/g,
       function(match, match1, pos) {

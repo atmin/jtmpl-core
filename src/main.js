@@ -3,6 +3,8 @@
 ## Main function
 
 */
+
+/* jshint evil: true */
     var consts = require('./consts');
 
     function jtmpl() {
@@ -53,7 +55,7 @@
             // already wrapped
             args[2] :
             // otherwise wrap
-            jtmpl.freak(
+            jtmpl(
               typeof args[2] === 'object' ?
                 // object
                 args[2] :
@@ -81,7 +83,15 @@
         target.innerHTML = '';
 
         // Assign compiled template
-        target.appendChild(require('./compiler')(template, model, args[3]));
+        //target.appendChild(require('./compiler')(template, model, args[3]));
+        target.appendChild(
+          eval(
+            jtmpl.compile(
+              jtmpl.parse(template),
+              target.getAttribute('data-jtmpl')
+            ) + '(model)'
+          )
+        );
       }
     }
 

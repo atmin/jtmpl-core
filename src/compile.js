@@ -91,6 +91,7 @@ function compile(template, sourceURL) {
           func += 'node = document.createElement("' + node.nodeName + '");\n';
 
           // Process attributes
+          // TODO: handle jtmpl- prefixed attributes
           for (var ai = 0, attributes = node.attributes, alen = attributes.length;
                ai < alen; ai++) {
 
@@ -100,7 +101,7 @@ function compile(template, sourceURL) {
               for (ri = 0, rules = compileRules.attr, rlen = rules.length;
                   ri < rlen; ri++) {
 
-                match = rules[ri](node, attributes[ai].name);
+                match = rules[ri](node, attributes[ai].name.toLowerCase());
 
                 if (match) {
 
@@ -120,7 +121,10 @@ function compile(template, sourceURL) {
             }
             else {
 
-              // Just clone the attributes
+              // TODO: extract clone rule as last fallback
+              // attribute rule and clean this section
+
+              // Just clone the attribute
               func += 'node.setAttribute("' +
                 attributes[ai].name +
                 '", ' +
@@ -130,7 +134,7 @@ function compile(template, sourceURL) {
           }
 
           // Recursively compile
-          func += 'node.appendChild(' + compile(node) + '());\n';
+          func += 'node.appendChild(' + compile(node) + '(model));\n';
 
           // Append to fragment
           func += 'frag.appendChild(node);\n';
