@@ -282,9 +282,12 @@ module.exports = {
                 var parent = anchor.parentNode;
                 var anchorIndex = [].indexOf.call(parent.childNodes, anchor);
                 var pos = anchorIndex - length + i * chunkSize;
+                var size = chunkSize;
 
-                // TODO: fixme, this is not correct!!!
-                parent.replaceChild(
+                while (size--) {
+                  parent.removeChild(parent.childNodes[pos - 1]);
+                }
+                parent.insertBefore(
                   eval(template + '(model(prop)(i))'),
                   parent.childNodes[pos]
                 );
@@ -336,9 +339,18 @@ module.exports = {
                 val.on('delete', del);
                 render = document.createDocumentFragment();
 
-                for (i = 0, len = val.len; i < len; i++) {
+                //console.log('rendering ' + val.len + ' values');
+                var func = eval(template);
+                var child, childModel;
+                for (i = 0, len = val.values.length; i < len; i++) {
+                  // TODO: implement event delegation for array indexes
                   val.on('change', i, update(i));
-                  render.appendChild(eval(template + '(val(i))'));
+                  //render.appendChild(eval(template + '(val(i))'));
+                  //render.appendChild(func(val.values[i]));
+                  childModel = val(i);
+                  child = func(childModel);
+                  child.__jtmpl__ = childModel;
+                  render.appendChild(child);
                 }
 
                 length = render.childNodes.length;
@@ -352,6 +364,7 @@ module.exports = {
                 length = render.childNodes.length;
                 chunkSize = length;
                 anchor.parentNode.insertBefore(render, anchor);
+                anchor.parentNode.__jtmpl__ = model;
               }
 
               // Cast to boolean
@@ -366,8 +379,8 @@ module.exports = {
             }
 
             fragment.appendChild(anchor);
-            model.on('change', prop, change);
             change();
+            model.on('change', prop, change);
           }
         };
       }
@@ -381,9 +394,62 @@ module.exports = {
      * {{^inverted_section}}
      */
     function(node) {
-      var match = node.innerHTML.match(/^\^([\w\.\-])+$/);
+      var match = node.innerHTML.match(/^\^([\w\.\-]+)$/);
 
       if (match) {
+
+        return {
+
+          block: match[1],
+
+          rule: function(fragment, model, prop, template) {
+
+            // Anchor node for keeping section location
+            var anchor = document.createComment('');
+            // Number of rendered nodes
+            var length = 0;
+
+            function change() {
+              var val = prop === '.' ? model : model(prop);
+              var i, len, render;
+
+              // Delete old rendering
+              while (length) {
+                anchor.parentNode.removeChild(anchor.previousSibling);
+                length--;
+              }
+
+              // Array?
+              if (typeof val === 'function' && val.len !== undefined) {
+                val.on('insert', change);
+                val.on('delete', change);
+                render = document.createDocumentFragment();
+
+                if (val.len === 0) {
+                  render.appendChild(eval(template + '(val(i))'));
+                }
+
+                length = render.childNodes.length;
+                anchor.parentNode.insertBefore(render, anchor);
+              }
+
+              // Cast to boolean
+              else {
+                if (!val) {
+                  render = eval(template + '(model)');
+                  length = render.childNodes.length;
+                  anchor.parentNode.insertBefore(render, anchor);
+                }
+              }
+            }
+
+            fragment.appendChild(anchor);
+            change();
+            model.on('change', prop, change);
+          }
+
+
+        };
       }
     }
 
