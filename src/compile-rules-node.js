@@ -3,7 +3,11 @@
  *
  */
 module.exports = [
+
   /* jshint evil: true */
+
+
+
 
   /**
    * {{var}}
@@ -177,6 +181,9 @@ module.exports = [
               var child, childModel;
               for (i = 0, len = val.values.length; i < len; i++) {
                 // TODO: implement event delegation for array indexes
+                // Also, using val.values[i] instead of val[i]
+                // saves A LOT of heap memory. Figure out how to do
+                // on demand model creation.
                 val.on('change', i, update(i));
                 //render.appendChild(eval(template + '(val(i))'));
                 //render.appendChild(func(val.values[i]));
@@ -265,7 +272,6 @@ module.exports = [
               length = render.childNodes.length;
               anchor.parentNode.insertBefore(render, anchor);
             }
-
             // Cast to boolean
             else {
               if (!val) {
@@ -284,6 +290,18 @@ module.exports = [
 
       };
     }
-  }
+  },
 
+
+
+  /*
+   * Fallback rule, not recognized jtmpl tag
+   */
+  function(node) {
+    return {
+      rule: function(fragment) {
+        fragment.appendChild(document.createTextNode('REMOVEMELATER'));
+      }
+    };
+  }
 ];

@@ -187,7 +187,25 @@ module.exports = [
    * class="{{#cond1}}class1{{/}} {{^cond2}}class2{{/}} ..."
    */
   function(node, attr) {
+    if (attr !== 'class') {
+      return;
+    }
+    var val = node.getAttribute(attr);
+    var match;
+    var reCond = /\{\{#([\w\.\-]+)\}\}([\S\s]+?)\{\{\/([\w\.\-]*?)\}\}/g;
+    var cond = [];
+    var reNegCond = /\{\{\^([\w\.\-]+)\}\}([\S\s]+?)\{\{\/([\w\.\-]*?)\}\}/g;
+    var negCond = [];
 
+    while ((match = reCond.exec(val))) {
+      cond.push(match);
+    }
+    while ((match = reNegCond.exec(val))) {
+      negCond.push(match);
+    }
+
+    console.log(cond);
+    console.log(negCond);
   },
 
 
@@ -228,5 +246,22 @@ module.exports = [
         }
       };
     }
+  },
+
+
+
+
+  /*
+   * Fallback rule, copy the attribute
+   * Strip jtmpl- prefix
+   */
+  function(node, attr) {
+    return {
+      prop: node.getAttribute(attr),
+      rule: function(node, attr, model, prop) {
+        node.setAttribute(attr.replace('jtmpl-', ''), prop);
+      }
+    };
   }
+
 ];

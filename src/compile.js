@@ -94,12 +94,6 @@ function compile(template, sourceURL, depth) {
               break;
             }
           } // end iterating node rules
-
-          // TODO: what to do with non-matching rules?
-          if (!match) {
-            func += 'node = document.createTextNode("REMOVEMELATER");\n';
-            func += 'frag.appendChild(node);\n';
-          }
         }
 
         else {
@@ -107,45 +101,27 @@ function compile(template, sourceURL, depth) {
           func += 'node = document.createElement("' + node.nodeName + '");\n';
 
           // Process attributes
-          // TODO: handle jtmpl- prefixed attributes
           for (var ai = 0, attributes = node.attributes, alen = attributes.length;
                ai < alen; ai++) {
 
-            if (attributes[ai].value.match(/\{\{/)) {
+            for (ri = 0, rules = require('./compile-rules-attr'), rlen = rules.length;
+                ri < rlen; ri++) {
 
-              // Opening delimiter found, process attribute rules
-              for (ri = 0, rules = require('./compile-rules-attr'), rlen = rules.length;
-                  ri < rlen; ri++) {
+              match = rules[ri](node, attributes[ai].name.toLowerCase());
 
-                match = rules[ri](node, attributes[ai].name.toLowerCase());
+              if (match) {
 
-                if (match) {
+                // Match found, append rule to func
+                func += '(' + match.rule.toString() + ')' +
+                  '(node, ' +
+                  JSON.stringify(attributes[ai].name) + // attr
+                  ', model, ' +
+                  JSON.stringify(match.prop) +          // prop
+                  ');\n';
 
-                  // Match found, append rule to func
-                  func += '(' + match.rule.toString() + ')' +
-                    '(node, ' +
-                    JSON.stringify(attributes[ai].name) + // attr
-                    ', model, ' +
-                    JSON.stringify(match.prop) +          // prop
-                    ');\n';
-
-                  // Skip other attribute rules
-                  break;
-                }
+                // Skip other attribute rules
+                break;
               }
-
-            }
-            else {
-
-              // TODO: extract clone rule as last fallback
-              // attribute rule and clean this section
-
-              // Just clone the attribute
-              func += 'node.setAttribute("' +
-                attributes[ai].name +
-                '", ' +
-                JSON.stringify(attributes[ai].value) +
-                ');\n';
             }
           }
 
