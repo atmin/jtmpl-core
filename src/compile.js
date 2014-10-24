@@ -8,8 +8,6 @@
  */
 function compile(template, sourceURL, depth) {
 
-  // Compile rules, for attributes and nodes
-  var compileRules = require('./compile-rules');
   var ri, rules, rlen;
   var match, block;
 
@@ -49,7 +47,7 @@ function compile(template, sourceURL, depth) {
         // jtmpl tag?
         if (node.nodeName === 'SCRIPT' && node.type === 'text/jtmpl-tag') {
 
-          for (ri = 0, rules = compileRules.node, rlen = rules.length;
+          for (ri = 0, rules = require('./compile-rules-node'), rlen = rules.length;
               ri < rlen; ri++) {
 
             match = rules[ri](node);
@@ -116,7 +114,7 @@ function compile(template, sourceURL, depth) {
             if (attributes[ai].value.match(/\{\{/)) {
 
               // Opening delimiter found, process attribute rules
-              for (ri = 0, rules = compileRules.attr, rlen = rules.length;
+              for (ri = 0, rules = require('./compile-rules-attr'), rlen = rules.length;
                   ri < rlen; ri++) {
 
                 match = rules[ri](node, attributes[ai].name.toLowerCase());
