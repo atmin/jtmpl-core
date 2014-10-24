@@ -6,7 +6,7 @@
  *
  * @returns {string} - Function body, accepting Freak instance parameter, suitable for eval()
  */
-function compile(template, sourceURL) {
+function compile(template, sourceURL, depth) {
 
   // Compile rules, for attributes and nodes
   var compileRules = require('./compile-rules');
@@ -16,6 +16,17 @@ function compile(template, sourceURL) {
   // Generate dynamic function body
   var func = '(function(model) {\n' +
     'var frag = document.createDocumentFragment(), node;\n\n';
+
+  if (!depth) {
+    // Global bookkeeping
+    func +=
+      'var radioGroups = {};\n' +
+      'var radioGroupsUpdating = {};\n' +
+      'var selects = [];\n' +
+      'var selectsUpdating = [];\n' +
+      'var selectOptions = [];\n' +
+      'var selectOptionsContexts = [];\n\n';
+  }
 
   // Wrap model in a Freak instance, if necessary
   func += 'model = typeof model === "function" ?' +
@@ -64,7 +75,14 @@ function compile(template, sourceURL) {
                   func += '(' + match.rule.toString() + ')' +
                     '(frag, model, ' +
                     JSON.stringify(match.block) + ', ' +   // prop
-                    JSON.stringify(compile(block)) + ');'; // template
+                    JSON.stringify(
+                      // template
+                      compile(
+                        block,
+                        sourceURL && (sourceURL + '-' + node.innerHTML + '[' + i + ']'),
+                        (depth || 0) + 1
+                      )
+                    ) + ');';
                 }
 
               }
@@ -134,7 +152,12 @@ function compile(template, sourceURL) {
           }
 
           // Recursively compile
-          func += 'node.appendChild(' + compile(node) + '(model));\n';
+          func += 'node.appendChild(' +
+            compile(
+              node,
+              sourceURL && (sourceURL + '-' + node.nodeName + '[' + i + ']'),
+              (depth || 0) + 1
+            ) + '(model));\n';
 
           // Append to fragment
           func += 'frag.appendChild(node);\n';

@@ -67,7 +67,7 @@ module.exports = {
      */
     function(node, attr) {
       var match = node.getAttribute(attr).match(RE_DELIMITED_VAR);
-      if (attr === 'selected' && match) {
+      if (attr === 'jtmpl-selected' && match) {
 
         return {
 
@@ -75,18 +75,12 @@ module.exports = {
 
           rule: function(node, attr, model, prop) {
 
-            var selects = [];
-            var selectOptions = [];
-            var selectOptionsContexts = [];
-            // Currently updating? Initialized to true to avoid sync init
-            var updating = true;
-
             function change() {
-              if (updating) {
-                return;
-              }
               if (node.nodeName === 'OPTION') {
                 var i = selects.indexOf(node.parentNode);
+                if (selectsUpdating[i]) {
+                  return;
+                }
                 for (var j = 0, len = selectOptions[i].length; j < len; j++) {
                   selectOptions[i][j].selected = selectOptionsContexts[i][j](prop);
                 }
@@ -110,11 +104,11 @@ module.exports = {
                   selectOptionsContexts.push([]);
                   // Attach change listener
                   node.parentNode.addEventListener('change', function() {
-                    updating = true;
+                    selectsUpdating[i] = true;
                     for (var oi = 0, olen = selectOptions[i].length; oi < olen; oi++) {
                       selectOptionsContexts[i][oi](prop, selectOptions[i][oi].selected);
                     }
-                    updating = false;
+                    selectsUpdating[i] = false;
                   });
                 }
                 // Remember option and context
@@ -131,10 +125,7 @@ module.exports = {
 
 
             model.on('change', prop, change);
-            setTimeout(function() {
-              updating = false;
-              model.trigger('change', prop);
-            });
+            setTimeout(change);
           }
         };
       }
@@ -147,14 +138,69 @@ module.exports = {
      * checked="{{var}}"
      */
     function(node, attr) {
+      var match = node.getAttribute(attr).match(RE_DELIMITED_VAR);
+      if (attr === 'jtmpl-checked' && match) {
 
+        return {
+
+          prop: match[1],
+
+          rule: function(node, attr, model, prop) {
+
+            function change() {
+              if (node.name) {
+                if (radioGroupsUpdating[node.name]) {
+                  return;
+                }
+                for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
+                  radioGroups[node.name][0][i].checked = radioGroups[node.name][1][i](prop);
+                }
+              }
+              else {
+                node.checked = model(prop);
+              }
+            }
+
+            // radio group?
+            if (node.type === 'radio' && node.name) {
+              if (!radioGroups[node.name]) {
+                // Init radio group ([0]: node, [1]: model)
+                radioGroups[node.name] = [[], []];
+              }
+              // Add input to radio group
+              radioGroups[node.name][0].push(node);
+              // Add context to radio group
+              radioGroups[node.name][1].push(model);
+            }
+
+            node.addEventListener('click', function() {
+              if (node.type === 'radio' && node.name) {
+                radioGroupsUpdating[node.name] = true;
+                // Update all inputs from the group
+                for (var i = 0, len = radioGroups[node.name][0].length; i < len; i++) {
+                  radioGroups[node.name][1][i](prop, radioGroups[node.name][0][i].checked);
+                }
+                radioGroupsUpdating[node.name] = false;
+              }
+              else {
+                // Update current input only
+                model(prop, node.checked);
+              }
+            });
+
+            model.on('change', prop, change);
+            setTimeout(change);
+          }
+
+        };
+      }
     },
 
 
 
 
     /**
-     * class="{{var}}"
+     * class="{{#cond1}}class1{{/}} {{^cond2}}class2{{/}} ..."
      */
     function(node, attr) {
 
