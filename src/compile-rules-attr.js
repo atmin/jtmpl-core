@@ -192,9 +192,9 @@ module.exports = [
     }
     var val = node.getAttribute(attr);
     var match;
-    var reCond = /\{\{#([\w\.\-]+)\}\}([\S\s]+?)\{\{\/([\w\.\-]*?)\}\}/g;
+    var reCond = /\{\{#([\w\.\-]+)\}\}(.+?)\{\{\/([\w\.\-]*?)\}\}/g;
     var cond = [];
-    var reNegCond = /\{\{\^([\w\.\-]+)\}\}([\S\s]+?)\{\{\/([\w\.\-]*?)\}\}/g;
+    var reNegCond = /\{\{\^([\w\.\-]+)\}\}(.+?)\{\{\/([\w\.\-]*?)\}\}/g;
     var negCond = [];
 
     while ((match = reCond.exec(val))) {
@@ -206,6 +206,10 @@ module.exports = [
 
     console.log(cond);
     console.log(negCond);
+
+    if (cond.length || negCond.length) {
+
+    }
   },
 
 
