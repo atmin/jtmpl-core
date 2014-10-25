@@ -86,7 +86,41 @@ module.exports = [
    */
   function(node) {
     // match: [1]=var_name, [2]='single-quoted' [3]="double-quoted"
-    if (node.innerHTML.match(/>([\w\.\-]+)|'([^\']*)\'|"([^"]*)"/)) {
+    var match = node.innerHTML.match(/>([\w\.\-]+)|'([^\']*)\'|"([^"]*)"/);
+
+    if (match) {
+      return {
+
+        prop: match,
+
+        rule: function(fragment, model, match) {
+
+          var anchor = document.createComment('');
+          var target;
+
+          function loader() {
+            if (!target) {
+              target = anchor.parentNode;
+            }
+            jtmpl.loader(
+              target,
+              match[1] ?
+                // Variable
+                model(match[1]) :
+                // Literal
+                match[2] || match[3],
+              model
+            );
+          }
+          if (match[1]) {
+            // Variable
+            model.on('change', match[1], loader);
+          }
+          fragment.appendChild(anchor);
+          // Load async
+          setTimeout(loader);
+        }
+      };
     }
   },
 

@@ -129,6 +129,7 @@ Expose new-generation compiler for experimenting
         JSON.stringify(val.values) :
         val;
     };
+    jtmpl.loader = require('./loader');
     jtmpl.utemplate = require('./utemplate');
 
 
