@@ -154,12 +154,13 @@ module.exports = [
               var anchorIndex = [].indexOf.call(parent.childNodes, anchor);
               var pos = anchorIndex - length + i * chunkSize;
               var size = chunkSize;
+              var arr = prop === '.' ? model : model(prop);
 
               while (size--) {
-                parent.removeChild(parent.childNodes[pos - 1]);
+                parent.removeChild(parent.childNodes[pos]);
               }
               parent.insertBefore(
-                eval(template + '(model(prop)(i))'),
+                eval(template + '(arr(i))'),
                 parent.childNodes[pos]
               );
             };
@@ -171,10 +172,11 @@ module.exports = [
             var pos = anchorIndex - length + index * chunkSize;
             var size = count * chunkSize;
             var i, fragment;
+            var arr = prop === '.' ? model : model(prop);
 
             for (i = 0, fragment = document.createDocumentFragment();
                 i < count; i++) {
-              fragment.appendChild(eval(template + '(model(prop)(index + i))'));
+              fragment.appendChild(eval(template + '(arr(index + i))'));
             }
 
             parent.insertBefore(fragment, parent.childNodes[pos]);
