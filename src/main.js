@@ -96,8 +96,7 @@ function jtmpl() {
  * On page ready, process jtmpl targets
  */
 
-require('./content-loaded')(window, function() {
-
+window.addEventListener('DOMContentLoaded', function() {
   var loader = require('./loader');
   var targets = document.querySelectorAll('[data-jtmpl]');
 
