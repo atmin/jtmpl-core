@@ -21,7 +21,7 @@ module.exports = [
         rule: function(node, attr, model, prop) {
 
           function change() {
-            var val = jtmpl.get(model, prop);
+            var val = jtmpl._get(model, prop);
             if (node[attr] !== val) {
               node[attr] = val || '';
             }
@@ -107,7 +107,6 @@ module.exports = [
             });
           }
 
-
           model.on('change', prop, change);
           setTimeout(change);
         }
@@ -184,48 +183,6 @@ module.exports = [
 
 
   /**
-   * class="{{#cond1}}class1{{/}} {{^cond2}}class2{{/}} ..."
-   */
-  function(node, attr) {
-    if (attr !== 'class') {
-      return;
-    }
-    var val = node.getAttribute(attr);
-    var match;
-    var reCond = /\{\{#([\w\.\-]+)\}\}(.+?)\{\{\/([\w\.\-]*?)\}\}/g;
-    var cond = [];
-    var reNegCond = /\{\{\^([\w\.\-]+)\}\}(.+?)\{\{\/([\w\.\-]*?)\}\}/g;
-    var negCond = [];
-
-    while ((match = reCond.exec(val))) {
-      cond.push(match);
-    }
-    while ((match = reNegCond.exec(val))) {
-      negCond.push(match);
-    }
-
-    console.log(cond);
-    console.log(negCond);
-
-    if (cond.length || negCond.length) {
-
-    }
-  },
-
-
-
-
-  /**
-   * style="{{var}}"
-   */
-  function(node, attr) {
-
-  },
-
-
-
-
-  /**
    * attribute="{{var}}"
    */
   function(node, attr) {
@@ -239,7 +196,7 @@ module.exports = [
         rule: function(node, attr, model, prop) {
 
           function change() {
-            var val = jtmpl.get(model, prop);
+            var val = jtmpl._get(model, prop);
             return val ?
               node.setAttribute(attr, val) :
               node.removeAttribute(attr);
@@ -255,15 +212,22 @@ module.exports = [
 
 
 
-  /*
-   * Fallback rule, copy the attribute
+  /**
+   * Fallback rule, process via @see utemplate
    * Strip jtmpl- prefix
    */
   function(node, attr) {
     return {
       prop: node.getAttribute(attr),
       rule: function(node, attr, model, prop) {
-        node.setAttribute(attr.replace('jtmpl-', ''), prop);
+        var attrName = attr.replace('jtmpl-', '');
+        function change() {
+          node.setAttribute(
+            attrName,
+            jtmpl.utemplate(prop, model, change)
+          );
+        }
+        change();
       }
     };
   }

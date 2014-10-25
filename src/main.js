@@ -123,7 +123,7 @@ Expose new-generation compiler for experimenting
 
     jtmpl.parse = require('./parse');
     jtmpl.compile = require('./compile');
-    jtmpl.get = function(model, prop) {
+    jtmpl._get = function(model, prop) {
       var val = model(prop);
       return (typeof val === 'function') ?
         JSON.stringify(val.values) :

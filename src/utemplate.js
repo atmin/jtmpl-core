@@ -3,7 +3,7 @@
  *
  * @param {string} template
  * @param {function} model - data as Freak instance
- * @param {optional function(model, prop, isBlock)} callback - called for each tag found
+ * @param {optional function} onChange - will be called whenever used model property changes
  *
  * @returns {string} - rendered template using model
  *
@@ -13,7 +13,7 @@
  *
  * Does NOT support nested sections, so simple parsing via regex is possible.
  */
-function utemplate(template, model, callback) {
+function utemplate(template, model, onChange) {
   return template
     // {{#section}} sectionBody {{/}}
     .replace(
@@ -22,8 +22,8 @@ function utemplate(template, model, callback) {
         if (closeTag !== '' && closeTag !== openTag) {
           throw 'jtmpl: Unclosed ' + openTag;
         }
-        if (typeof callback === 'function') {
-          callback(model, openTag, true);
+        if (typeof onChange === 'function') {
+          model.on('change', openTag, onChange);
         }
         var val = openTag === '.' ? model : model(openTag);
         return (typeof val === 'function' && val.len !== undefined) ?
@@ -32,7 +32,7 @@ function utemplate(template, model, callback) {
               // Non-empty
               val.values
                 .map(function(el, i) {
-                  return utemplate(body.replace(/\{\{\.\}\}/g, '{{' + i + '}}'), val, callback);
+                  return utemplate(body.replace(/\{\{\.\}\}/g, '{{' + i + '}}'), val, onChange);
                 })
                 .join('') :
               // Empty
@@ -40,10 +40,10 @@ function utemplate(template, model, callback) {
             // Object or boolean?
             (typeof val === 'function' && val.len === undefined) ?
               // Object
-              utemplate(body, val, callback) :
+              utemplate(body, val, onChange) :
               // Cast to boolean
               (!!val) ?
-                utemplate(body, model, callback) :
+                utemplate(body, model, onChange) :
                 '';
       }
     )
@@ -54,20 +54,20 @@ function utemplate(template, model, callback) {
         if (closeTag !== '' && closeTag !== openTag) {
           throw 'jtmpl: Unclosed ' + openTag;
         }
-        if (typeof callback === 'function') {
-          callback(model, openTag, true);
+        if (typeof onChange === 'function') {
+          model.on('change', openTag, onChange);
         }
         var val = openTag === '.' ? model : model(openTag);
         return (typeof val === 'function' && val.len !== undefined) ?
             // Array
             (val.len === 0) ?
               // Empty
-              utemplate(body, model, callback) :
+              utemplate(body, model, onChange) :
               // Non-empty
               '' :
             // Cast to boolean
             (!val) ?
-              utemplate(body, model, callback) :
+              utemplate(body, model, onChange) :
               '';
       }
     )
@@ -75,8 +75,8 @@ function utemplate(template, model, callback) {
     .replace(
       /\{\{([\w\.\-]+)\}\}/g,
       function(match, variable, pos) {
-        if (typeof callback === 'function') {
-          callback(model, variable, false);
+        if (typeof onChange === 'function') {
+          model.on('change', variable, onChange);
         }
         return model(variable) === undefined ? '' : model(variable) + '';
       }

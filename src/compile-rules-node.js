@@ -20,10 +20,10 @@ module.exports = [
         prop: node.innerHTML,
 
         rule: function(fragment, model, prop) {
-          var textNode = document.createTextNode(model(prop) || '');
+          var textNode = document.createTextNode(jtmpl._get(model, prop) || '');
           fragment.appendChild(textNode);
           model.on('change', prop, function() {
-            textNode.data = jtmpl.get(model, prop) || '';
+            textNode.data = jtmpl._get(model, prop) || '';
           });
         }
       };
