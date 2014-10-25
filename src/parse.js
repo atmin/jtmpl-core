@@ -58,11 +58,8 @@ function parse(template) {
   document.body.appendChild(iframe);
   iframe.contentDocument.writeln('<!doctype html>\n<html><body>' + template + '</body></html>');
   body = iframe.contentDocument.body;
-  // Remove async, as IE8 raises "Permission denied"
-  // when processing off-DOM structures
-  setTimeout(function() {
-    document.body.removeChild(iframe);
-  });
+  document.body.removeChild(iframe);
+
   return body;
 }
 

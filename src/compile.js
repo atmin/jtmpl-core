@@ -125,13 +125,15 @@ function compile(template, sourceURL, depth) {
             }
           }
 
-          // Recursively compile
-          func += 'node.appendChild(' +
-            compile(
-              node,
-              sourceURL && (sourceURL + '-' + node.nodeName + '[' + i + ']'),
-              (depth || 0) + 1
+          if (node.nodeName !== 'INPUT') {
+            // Recursively compile
+            func += 'node.appendChild(' +
+              compile(
+                node,
+            sourceURL && (sourceURL + '-' + node.nodeName + '[' + i + ']'),
+            (depth || 0) + 1
             ) + '(model));\n';
+          }
 
           // Append to fragment
           func += 'frag.appendChild(node);\n';
