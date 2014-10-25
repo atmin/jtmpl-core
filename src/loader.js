@@ -7,8 +7,6 @@ Evaluate object from literal or CommonJS module
     /* jshint evil:true */
     module.exports = function(target, src, model) {
 
-      var consts = require('./consts');
-
       model = model || {};
       if (typeof model !== 'function') {
         model = jtmpl(model);
@@ -67,7 +65,7 @@ Evaluate object from literal or CommonJS module
           // No source
           jtmpl(target, template, model);
         }
-        else if (src.match(consts.RE_NODE_ID)) {
+        else if (src.match(jtmpl.RE_NODE_ID)) {
           // Element in this document
           var element = doc.querySelector(src);
           mixin(model, evalObject(element.innerHTML, src));
@@ -80,7 +78,7 @@ Evaluate object from literal or CommonJS module
           // Older IEs complain if URL contains hash
           jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src,
             function (resp) {
-              var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
+              var match = src.match(jtmpl.RE_ENDS_WITH_NODE_ID);
               var element = match && new DOMParser()
                 .parseFromString(resp, 'text/html')
                 .querySelector(match[1]);
@@ -97,7 +95,7 @@ Evaluate object from literal or CommonJS module
 
         if (!src) return;
 
-        if (src.match(consts.RE_NODE_ID)) {
+        if (src.match(jtmpl.RE_NODE_ID)) {
           // Template is the contents of element
           // belonging to this document
           var element = document.querySelector(src);
@@ -108,7 +106,7 @@ Evaluate object from literal or CommonJS module
           // Get template via XHR
           jtmpl('GET', hashIndex > -1 ? src.substring(0, hashIndex) : src,
             function(resp) {
-              var match = src.match(consts.RE_ENDS_WITH_NODE_ID);
+              var match = src.match(jtmpl.RE_ENDS_WITH_NODE_ID);
               var iframe, doc;
               if (match) {
                 iframe = document.createElement('iframe');
