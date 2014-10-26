@@ -170,7 +170,7 @@ function compile(template, sourceURL, depth) {
 
 
 function matchEndBlock(block, str) {
-  var match = str.match(/\/([\w\.\-]+)?/);
+  var match = str.match(/^\/([\w\.\-]+)?$/);
   return match ?
     block === '' || !match[1] || match[1] === block :
     false;
